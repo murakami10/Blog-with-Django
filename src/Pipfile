@@ -1,0 +1,15 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "~=3.1"
+pytest = "~=6.2"
+uwsgi = "==2.0.17"
+pymysql = "==1.0.2"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"
