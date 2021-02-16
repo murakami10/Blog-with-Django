@@ -5,7 +5,7 @@ services:
     build:
       context: ./src
       dockerfile: Dockerfile
-    command: uwsgi --socket :8001 --module application.wsgi --py-autoreload 1 --logto /tmp/mylog.log
+    command: uwsgi --socket :8001 --module config.wsgi --py-autoreload 1 --logto /tmp/mylog.log
     volumes:
       - ./src:/usr/src/app
       - ./src/static:/usr/src/app/static
@@ -26,7 +26,7 @@ services:
       TZ: 'Asia/Tokyo'
     volumes:
       - ./mysql:/var/lib/mysql
-      - ./sql:/docker-entrypoint-initdb.d
+      - ./db/mysql_init:/docker-entrypoint-initdb.d
   nginx:
     image: nginx:1.13
     ports:
