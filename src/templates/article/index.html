@@ -1,0 +1,18 @@
+
+{% extends "base.html" %}
+
+{% block page_title %}記事一覧{% endblock %}
+
+{% block content %}
+    {% for article in latest_article_list %}
+        author: {{ article.author }} <br/>
+        title: <a href="{% url "article:detail" article.id %}">{{ article.title }}</a> <br/>
+        summary: {{ article.summary }} <br/>
+        content: {{ article.content }} <br/>
+        publish_date: {{ article.publish_date }} <br/>
+        category: {{ article.category }} <br/>
+    {% empty %}
+        記事が存在しません
+    {% endfor %}
+    
+{% endblock %}

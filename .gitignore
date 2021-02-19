@@ -1,6 +1,9 @@
 # for mac
 .DS_STORE
 
+# python
+__pycache__
+
 # mysql
 mysql/*
 
