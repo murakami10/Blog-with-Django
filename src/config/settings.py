@@ -31,13 +31,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "article.apps.ArticleConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "article.apps.ArticleConfig",
 ]
 
 MIDDLEWARE = [
@@ -87,6 +87,9 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
+
+AUTH_USER_MODEL = "article.User"
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
