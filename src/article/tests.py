@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db import utils
@@ -16,17 +18,14 @@ class ArticleCategoryTest(TestCase):
         self.assertNotEqual(category.category, " python")
         with self.assertRaises(utils.IntegrityError):
             with transaction.atomic():
-                c1 = ArticleCategory.objects.create(category="python")
-                c1.save()
+                ArticleCategory.objects.create(category="python")
             with transaction.atomic():
-                c2 = ArticleCategory.objects.create(category="python")
-                c2.save()
+                ArticleCategory.objects.create(category="python")
         with self.assertRaises(utils.DataError):
             with transaction.atomic():
-                c3 = ArticleCategory.objects.create(
+                ArticleCategory.objects.create(
                     category="aiueoaiueoaiueoaiueoa",
                 )
-                c3.save()
 
 
 class ArticleTest(TestCase):
@@ -97,3 +96,34 @@ class UserManagersTest(TestCase):
             User.objects.create_superuser(
                 email="super@user.com", password="foo", is_superuser=False
             )
+
+
+class LoginViewTests(TestCase):
+    def setUp(self) -> None:
+        get_user_model().objects.create_superuser(
+            email="test@test.com", password="aiueoaiueo"
+        )
+
+    def test_login_sucsess(self):
+        response = self.client.post(
+            "/article/login/", data={"email": "test@test.com", "password": "aiueoaiueo"}
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response["Location"], "/article/index/")
+
+    def test_login_error(self):
+        response = self.client.post(
+            "/article/login/",
+            data={"email": "test@test.com", "password": "pythonpython"},
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Eメールアドレス または パスワードに誤りがあります.")
+
+        response = self.client.post(
+            "/article/login/",
+            data={"email": "tete@tete.com", "password": "aiueoaiueo"},
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Eメールアドレス または パスワードに誤りがあります.")
