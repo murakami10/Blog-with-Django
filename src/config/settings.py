@@ -69,9 +69,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-LOGIN_URL = "/article/index/"
-LOGIN_REDIRECT_URL = "/article/index/"
-LOGOUT_REDIRECT_URL = "/article/index/"
+LOGIN_URL = "article:index"
+LOGIN_REDIRECT_URL = "article:index"
+LOGOUT_REDIRECT_URL = "article:index"
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases

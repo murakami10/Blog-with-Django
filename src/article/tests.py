@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db import utils
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 
 from .models import Article
@@ -110,7 +111,7 @@ class LoginViewTests(TestCase):
         )
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertEqual(response["Location"], "/article/index/")
+        self.assertEqual(response["Location"], reverse("article:index"))
 
     def test_login_error(self):
         response = self.client.post(
