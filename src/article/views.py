@@ -1,7 +1,11 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LogoutView
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.views import View
 
+from .forms import EmailAuthenticationForm
 from .models import Article
 
 
@@ -16,3 +20,12 @@ class DetailView(View):
     def get(self, request, article_id):
         article = get_object_or_404(Article, pk=article_id)
         return render(request, "article/detail.html", {"article": article})
+
+
+class Login(LoginView):
+    form_class = EmailAuthenticationForm
+    template_name = "article/login.html"
+
+
+class Logout(LoginRequiredMixin, LogoutView):
+    template_name = "article/index.html"

@@ -1,20 +1,17 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .forms import UserChangeFormInModel
-from .forms import UserCreationFormInModel
 from .models import Article
 from .models import ArticleCategory
 from .models import User
 
 
 class UserAdminInModel(UserAdmin):
-    add_form = UserCreationFormInModel
-    form = UserChangeFormInModel
-    model = User
     list_display = (
         "email",
         "username",
+        "first_name",
+        "last_name",
         "is_staff",
         "is_active",
     )
@@ -25,7 +22,10 @@ class UserAdminInModel(UserAdmin):
         "is_active",
     )
     fieldsets = (
-        (None, {"fields": ("email", "username", "password")}),
+        (
+            None,
+            {"fields": ("email", "username", "first_name", "last_name", "password")},
+        ),
         ("Permissions", {"fields": ("is_staff", "is_active")}),
     )
     add_fieldsets = (
@@ -44,7 +44,7 @@ class UserAdminInModel(UserAdmin):
             },
         ),
     )
-    search_fields = ("email",)
+    search_fields = ("email", "username")
     ordering = ("email",)
 
 

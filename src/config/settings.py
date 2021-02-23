@@ -31,13 +31,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "article.apps.ArticleConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "article.apps.ArticleConfig",
 ]
 
 MIDDLEWARE = [
@@ -69,6 +69,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+LOGIN_URL = "/article/index/"
+LOGIN_REDIRECT_URL = "/article/index/"
+LOGOUT_REDIRECT_URL = "/article/index/"
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -79,7 +82,8 @@ DATABASES = {
         "NAME": "article",
         "USER": "user",
         "PASSWORD": "password",
-        "HOST": "db",
+        # "HOST": "db",
+        "HOST": "127.0.0.1",
         "PORT": "3306",
     }
 }
@@ -90,6 +94,9 @@ DATABASES = {
 
 AUTH_USER_MODEL = "article.User"
 
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+]
 
 AUTH_PASSWORD_VALIDATORS = [
     {
