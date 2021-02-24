@@ -1,0 +1,14 @@
+
+{% extends "base.html" %}
+
+{% block page_title %}記事一覧{% endblock %}
+
+{% block content %}
+    記事を投稿する
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">投稿する</button>
+    </form>
+
+{% endblock %}

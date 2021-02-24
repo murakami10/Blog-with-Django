@@ -46,8 +46,11 @@ class Article(models.Model):
     title = models.CharField(verbose_name="タイトル", max_length=255)
     summary = models.CharField(verbose_name="記事の要約", max_length=255)
     content = models.TextField(verbose_name="内容")
-    publish_date = models.DateTimeField(verbose_name="作成日")
+    publish_date = models.DateTimeField(verbose_name="投稿日")
     category = models.ForeignKey(ArticleCategory, on_delete=models.PROTECT)
+
+    def set_author(self, user: User):
+        self.author_id = user.id
 
     def __str__(self):
         return self.title

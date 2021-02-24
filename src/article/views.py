@@ -2,10 +2,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.views import LogoutView
 from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views import View
 
 from .forms import EmailAuthenticationForm
+from .forms import PostArticleForm
 from .models import Article
 
 
@@ -29,3 +31,23 @@ class Login(LoginView):
 
 class Logout(LoginRequiredMixin, LogoutView):
     template_name = "article/index.html"
+
+
+class PostArticle(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        form = PostArticleForm()
+        return render(
+            request, "article/post.html", {"author": user.username, "form": form}
+        )
+
+    def post(self, request):
+        form = PostArticleForm(request.POST)
+        is_valid = form.is_valid()
+        if not is_valid:
+            return render(request, "article/post.html", {"form": form})
+
+        article = form.save(commit=False)
+        article.set_author(request.user)
+        form.save()
+        return redirect("article:index")

@@ -1,10 +1,11 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
-from django.contrib.auth import views
-from django.contrib.auth.forms import AuthenticationForm
+from django.utils import timezone
 from django.utils.text import capfirst
 from django.utils.translation import gettext_lazy as _
+
+from .models import Article
 
 UserModel = get_user_model()
 
@@ -63,3 +64,24 @@ class EmailAuthenticationForm(forms.Form):
 
     def get_user(self):
         return self.user_cache
+
+
+class PostArticleForm(forms.ModelForm):
+    error_messages = {"invalid_date": "無効な日付です."}
+
+    class Meta:
+        model = Article
+        fields = ("title", "summary", "content", "publish_date", "category")
+
+    def clean_publish_date(self):
+        publish_date = self.cleaned_data.get("publish_date")
+
+        if not self.is_future_date(publish_date):
+            raise forms.ValidationError(
+                self.error_messages["invalid_date"],
+                code="invalid_date",
+            )
+        return publish_date
+
+    def is_future_date(self, date):
+        return date > timezone.now()
