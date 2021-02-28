@@ -1,0 +1,14 @@
+
+body{
+    background-color: #eeeeee;
+}
+
+.main{
+    background-color: #ffffff;
+    margin-right: auto;
+    margin-left: auto;
+    margin-top: -0.8px;
+    margin-bottom: auto;
+    max-width: 1100px;
+    border: solid 0.5px;
+}
