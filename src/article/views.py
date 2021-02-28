@@ -13,6 +13,8 @@ from .models import Article
 
 class IndexView(View):
     def get(self, request):
+        if request.user.is_authenticated:
+            return redirect("article:login_index")
         latest_article_list = Article.objects.order_by("-publish_date")[:5]
         context = {"latest_article_list": latest_article_list}
         return render(request, "article/index.html", context)
@@ -20,6 +22,8 @@ class IndexView(View):
 
 class DetailView(View):
     def get(self, request, article_id):
+        if request.user.is_authenticated:
+            return redirect("article:login_detail")
         article = get_object_or_404(Article, pk=article_id)
         return render(request, "article/detail.html", {"article": article})
 
@@ -31,6 +35,23 @@ class Login(LoginView):
 
 class Logout(LoginRequiredMixin, LogoutView):
     template_name = "article/index.html"
+
+
+class LoginIndex(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        latest_article_list = Article.objects.order_by("-publish_date")[:5]
+        content = {"latest_article_list": latest_article_list, "user": user}
+        return render(request, "article/login_index.html", content)
+
+
+class LoginDetail(LoginRequiredMixin, View):
+    def get(self, request, article_id):
+        user = request.user
+        article = get_object_or_404(Article, pk=article_id)
+        return render(
+            request, "article/login_detail.html", {"article": article, "user": user}
+        )
 
 
 class PostArticle(LoginRequiredMixin, View):
