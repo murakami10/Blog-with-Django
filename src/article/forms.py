@@ -83,5 +83,6 @@ class PostArticleForm(forms.ModelForm):
             )
         return publish_date
 
-    def is_future_date(self, date):
+    @staticmethod
+    def is_future_date(date):
         return date > timezone.now()

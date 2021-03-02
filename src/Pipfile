@@ -8,6 +8,8 @@ django = "~=3.1"
 pytest = "~=6.2"
 uwsgi = "==2.0.17"
 mysqlclient = "==1.4.6"
+django-mdeditor = "==0.1.18"
+markdown = "==3.3.4"
 
 [dev-packages]
 mypy = "*"

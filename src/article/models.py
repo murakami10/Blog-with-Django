@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import ASCIIUsernameValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from mdeditor.fields import MDTextField
 
 from .managers import UserManager
 
@@ -45,7 +46,7 @@ class Article(models.Model):
     author = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="作者")
     title = models.CharField(verbose_name="タイトル", max_length=255)
     summary = models.CharField(verbose_name="記事の要約", max_length=255)
-    content = models.TextField(verbose_name="内容")
+    content = MDTextField()
     publish_date = models.DateTimeField(verbose_name="投稿日")
     category = models.ForeignKey(ArticleCategory, on_delete=models.PROTECT)
 
