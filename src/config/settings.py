@@ -37,8 +37,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "mdeditor",
     "lib",
+    "mdeditor",  # markdown
+    "bootstrap_datepicker_plus",
 ]
 
 MIDDLEWARE = [
@@ -212,3 +213,16 @@ USE_TZ = True
 STATIC_URL = "/static/"
 # STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+
+if DEBUG:
+
+    def show_toolbar(request):
+        return True
+
+    INSTALLED_APPS += ("debug_toolbar",)
+
+    MIDDLEWARE += ("debug_toolbar.middleware.DebugToolbarMiddleware",)
+
+    DEBUG_TOOLBAR_CONFIG = {
+        "SHOW_TOOLBAR_CALLBACK": show_toolbar,
+    }

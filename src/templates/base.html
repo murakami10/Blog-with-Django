@@ -12,6 +12,7 @@
     {# mdeditorのcssのための設定 #}
     <link rel="stylesheet" href="{% static 'mdeditor/css/editormd.min.css' %}">
     <link rel="stylesheet" href="{% static 'mdeditor/css/editormd.preview.css' %}">
+
     {% block addtional_css %}{% endblock %}
 
 </head>
@@ -44,7 +45,6 @@
         {% block content_fluid %}{% endblock %}
     </div>
 
-{% block body_end %}{% endblock %}
     {# mdeditorのcssのための設定 #}
 <script src="{% static 'mdeditor/js/jquery.min.js' %}"></script>
 <script src="{% static 'mdeditor/js/editormd.min.js' %}"></script>
@@ -70,6 +70,8 @@
       })
   })
 </script>
+
+{% block javascript %}{% endblock %}
 
 </body>
 </html>

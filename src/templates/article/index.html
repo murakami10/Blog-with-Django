@@ -18,11 +18,10 @@
                     </div>
                 </a>
                 <div class="card-body">
-                    author: {{ article.author }} <br/>
+                    author: {{ article.author__username }} <br/>
                     summary: {{ article.summary }} <br/>
-                    content: {{ article.content }} <br/>
                     publish_date: {{ article.publish_date }} <br/>
-                    category: {{ article.category }} <br/>
+                    category: {{ article.category__category }} <br/>
                 </div>
             </div>
         {% empty %}

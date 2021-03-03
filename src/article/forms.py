@@ -1,3 +1,4 @@
+import bootstrap_datepicker_plus as datetimepicker
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
@@ -6,6 +7,7 @@ from django.utils.text import capfirst
 from django.utils.translation import gettext_lazy as _
 
 from .models import Article
+from .models import ArticleCategory
 
 UserModel = get_user_model()
 
@@ -66,23 +68,75 @@ class EmailAuthenticationForm(forms.Form):
         return self.user_cache
 
 
-class PostArticleForm(forms.ModelForm):
-    error_messages = {"invalid_date": "無効な日付です."}
-
+class PrePostArticleForm(forms.ModelForm):
     class Meta:
         model = Article
-        fields = ("title", "summary", "content", "publish_date", "category")
+        exclude = ("author",)
+        labels = {
+            "title": "タイトル",
+            "summary": "要約",
+            "content": "内容",
+            "publish_date": "投稿予定日",
+            "category": "カテゴリー",
+        }
+        widgets = {"summary": forms.Textarea(attrs={"cols": 50})}
+
+    error_messages = {"future_date": "未来の日付になっています."}
 
     def clean_publish_date(self):
         publish_date = self.cleaned_data.get("publish_date")
 
         if not self.is_future_date(publish_date):
             raise forms.ValidationError(
-                self.error_messages["invalid_date"],
-                code="invalid_date",
+                self.error_messages["future_date"],
+                code="future_date",
             )
         return publish_date
 
+    def is_future_date(self, date):
+        return date > timezone.now()
+
     @staticmethod
-    def is_future_date(date):
+    def form_with_prapare_article_data(post: dict):
+        params = {}
+        for key in post.keys():
+            params[key] = post[key]
+
+        form = PrePostArticleForm(initial=params)
+        return form
+
+
+class PrepareArticleForm(forms.Form):
+
+    title = forms.CharField(label="タイトル", max_length=255)
+    summary = forms.CharField(
+        label="要約", max_length=255, widget=forms.Textarea(attrs={"cols": 50})
+    )
+    publish_date = forms.DateTimeField(
+        label="投稿日付",
+        widget=datetimepicker.DateTimePickerInput(
+            format="%Y-%m-%d %H:%M:%S",
+            options={
+                "locale": "ja",
+                "dayViewHeaderFormat": "YYYY年 MMMM",
+            },
+        ),
+    )
+    category = forms.ModelChoiceField(
+        label="カテゴリー", queryset=ArticleCategory.objects.all()
+    )
+
+    error_messages = {"future_date": "未来の日付になっています."}
+
+    def clean_publish_date(self):
+        publish_date = self.cleaned_data.get("publish_date")
+
+        if not self.is_future_date(publish_date):
+            raise forms.ValidationError(
+                self.error_messages["future_date"],
+                code="future_date",
+            )
+        return publish_date
+
+    def is_future_date(self, date):
         return date > timezone.now()

@@ -4,7 +4,7 @@
 {% block login %}
 <ul class="navbar-nav">
     <li class="nav-item">
-        <a class="nav-link" href="{% url "article:post"%}">記事を投稿</a>
+        <a class="nav-link" href="{% url "article:prepare_post"%}">記事を投稿</a>
     </li>
     <li class="nav-item">
         <a class="nav-link" href="{% url "article:logout"%}">Logout</a>
@@ -23,11 +23,10 @@
                     </div>
                 </a>
                 <div class="card-body">
-                    author: {{ article.author }} <br/>
+                    author: {{ article.author__username }} <br/>
                     summary: {{ article.summary }} <br/>
-                    content: {{ article.content }} <br/>
                     publish_date: {{ article.publish_date }} <br/>
-                    category: {{ article.category }} <br/>
+                    category: {{ article.category__category }} <br/>
                 </div>
             </div>
         {% empty %}
