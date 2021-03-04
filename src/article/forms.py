@@ -96,8 +96,8 @@ class PrePostArticleForm(forms.ModelForm):
     def is_future_date(self, date):
         return date > timezone.now()
 
-    @staticmethod
-    def form_with_prapare_article_data(post: dict):
+    @classmethod
+    def form_with_prapare_article_data(cls, post: dict):
         params = {}
         for key in post.keys():
             params[key] = post[key]

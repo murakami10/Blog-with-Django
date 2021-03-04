@@ -2,12 +2,7 @@
 
 
 {% load static %}
-
-
-{% block addtional_css %}
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-{% endblock %}
+{% load markdown_extras %}
 
 
 {% block page_title %}記事一覧{% endblock %}
@@ -27,14 +22,18 @@
     <link rel="stylesheet" href="{% static 'css/article/post.css' %}">
          <form method="post" >
              {% csrf_token %}
-             {{ form.media }}
-             {{ form.as_p }}
-             <button class="btn btn-success" type="submit">内容を入力</button>
+                author: {{ article.author.username }} <br/>
+                title: {{ article.title }}<br/>
+                summary: {{ article.summary }} <br/>
+                content:
+                <div id="content">{{ article.content |markdown|safe}} </div><br/>
+                publish_date: {{ article.publish_date }} <br/>
+                category: {{ article.category }} <br/>
+             <br>
+             <p>削除しますか?</p>
+             <button class="btn btn-danger" type="submit">削除</button>
          </form>
     </div>
 
-
 {% endblock %}
 
-{% block javascript %}
-{% endblock %}

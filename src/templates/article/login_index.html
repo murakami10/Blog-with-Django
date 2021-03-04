@@ -14,14 +14,36 @@
 {% endblock %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/article/index.css' %}">
+<link rel="stylesheet" href="{% static 'css/article/login_index.css' %}">
+{% if messages %}
+	<ul class="messages">
+		{% for message in messages %}
+			<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+		{% endfor %}
+	</ul>
+{% endif %}
         ログイン済み
         {% for article in latest_article_list %}
-            <div class="card">
-                <a href="{% url "article:login_detail" article.id %}">
-                    <div class="card-header">
-                        <p class="h1">title:{{ article.title }}</p>
-                    </div>
-                </a>
+            <div class="card relative">
+                <div>
+                    <a href="{% url "article:login_detail" article.id %}">
+                        <div class="card-header">
+                            <p class="h1">title:{{ article.title }}</p>
+                        </div>
+                    </a>
+                    {% if user.id == article.author_id %}
+                        <div id="edit">
+                            <a href="{% url "article:login_edit" article.id %}">
+                                <div class="btn btn-success">edit</div>
+                            </a>
+                        </div>
+                        <div id="delete">
+                            <a href="{% url "article:login_delete" article.id %}">
+                                <div class="btn btn-danger">delete</div>
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
                 <div class="card-body">
                     author: {{ article.author__username }} <br/>
                     summary: {{ article.summary }} <br/>

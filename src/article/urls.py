@@ -8,16 +8,26 @@ from . import views
 app_name = "article"
 urlpatterns = [
     path("index/", views.IndexView.as_view(), name="index"),
-    path("detail/<int:article_id>/", views.DetailView.as_view(), name="detail"),
+    path("<int:article_id>/detail/", views.DetailView.as_view(), name="detail"),
     path("prepare/", views.PrepareArticle.as_view(), name="prepare_post"),
     path("post/", views.PostArticle.as_view(), name="post"),
     path("login/", views.Login.as_view(), name="login"),
     path("logout/", views.Logout.as_view(), name="logout"),
     path("login/index/", views.LoginIndex.as_view(), name="login_index"),
     path(
-        "login/detail/<int:article_id>/",
+        "login/<int:article_id>/detail/",
         views.LoginDetail.as_view(),
         name="login_detail",
+    ),
+    path(
+        "login/<int:article_id>/edit/",
+        views.LoginEdit.as_view(),
+        name="login_edit",
+    ),
+    path(
+        "login/<int:pk>/delete/",
+        views.LoginDelete.as_view(),
+        name="login_delete",
     ),
     url(r"mdeditor/", include("mdeditor.urls")),
 ]

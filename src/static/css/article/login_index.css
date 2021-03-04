@@ -1,0 +1,16 @@
+
+.relative{
+    position: relative;
+}
+
+#edit{
+    position: absolute;
+    top: 20px;
+    right: 30px;
+}
+
+#delete{
+    position: absolute;
+    top: 20px;
+    right: 90px;
+}
