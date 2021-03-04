@@ -1,18 +1,31 @@
-
 {% extends "base.html" %}
-
+{% load static %}
 {% block page_title %}記事一覧{% endblock %}
-
+{% block login %}
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url "article:login"%}">Login</a>
+        </li>
+    </ul>
+{% endblock %}
 {% block content %}
-    {% for article in latest_article_list %}
-        author: {{ article.author }} <br/>
-        title: <a href="{% url "article:detail" article.id %}">{{ article.title }}</a> <br/>
-        summary: {{ article.summary }} <br/>
-        content: {{ article.content }} <br/>
-        publish_date: {{ article.publish_date }} <br/>
-        category: {{ article.category }} <br/>
-    {% empty %}
-        記事が存在しません
-    {% endfor %}
-    
+<link rel="stylesheet" href="{% static 'css/article/index.css' %}">
+        {% for article in latest_article_list %}
+            <div class="card">
+                <a href="{% url "article:detail" article.id %}">
+                    <div class="card-header">
+                        <p class="h1">title:{{ article.title }}</p>
+                    </div>
+                </a>
+                <div class="card-body">
+                    author: {{ article.author__username }} <br/>
+                    summary: {{ article.summary }} <br/>
+                    publish_date: {{ article.publish_date }} <br/>
+                    category: {{ article.category__category }} <br/>
+                </div>
+            </div>
+        {% empty %}
+            記事が存在しません
+        {% endfor %}
+
 {% endblock %}

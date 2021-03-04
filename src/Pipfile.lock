@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "bc44c10effd5bc7641eb13b29d9acef33ca4fa11b2d1f80df084780c64b06bcd"
+            "sha256": "43d451c52181b350c0ba02291f3aeac2f3c4ec2eb9922fc55b452f68aa69431b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -40,12 +40,27 @@
             "index": "pypi",
             "version": "==3.1.7"
         },
+        "django-mdeditor": {
+            "hashes": [
+                "sha256:7b44a25d46d4f37e6315e45e0836e73ff612267c5dcc28b2eda06a0f086ec436"
+            ],
+            "index": "pypi",
+            "version": "==0.1.18"
+        },
         "iniconfig": {
             "hashes": [
                 "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3",
                 "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"
             ],
             "version": "==1.1.1"
+        },
+        "markdown": {
+            "hashes": [
+                "sha256:31b5b491868dcc87d6c24b7e3d19a0d730d59d3e46f4eea6430a321bed387a49",
+                "sha256:96c3ba1261de2f7547b46a00ea8463832c921d3f9d6aba3f255a6f71386db20c"
+            ],
+            "index": "pypi",
+            "version": "==3.3.4"
         },
         "mysqlclient": {
             "hashes": [

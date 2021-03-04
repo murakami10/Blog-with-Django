@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+
+{% load static %}
+
+{% block page_title %}記事一覧{% endblock %}
+
+
+{% block login %}
+<ul class="navbar-nav">
+    <li class="nav-item">
+        <a class="nav-link" href="{% url "article:logout"%}">Logout</a>
+    </li>
+</ul>
+    <span class="navbar-text" style="color:red;">{{ user.username }}でログイン中</span>
+{% endblock %}
+{% block content_fluid %}
+
+    <div class="cn_fl">
+    <link rel="stylesheet" href="{% static 'css/article/post.css' %}">
+         <form method="post" >
+             {% csrf_token %}
+             {{ form.media }}
+             {{ form.as_p }}
+             <button class="btn btn-success" type="submit">更新する</button>
+         </form>
+    </div>
+
+{% endblock %}
+

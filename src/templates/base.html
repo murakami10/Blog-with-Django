@@ -1,13 +1,77 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <title>{% block page_title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'fa/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+    {# mdeditorのcssのための設定 #}
+    <link rel="stylesheet" href="{% static 'mdeditor/css/editormd.min.css' %}">
+    <link rel="stylesheet" href="{% static 'mdeditor/css/editormd.preview.css' %}">
+
+    {% block addtional_css %}{% endblock %}
 
 </head>
 <body>
-    <div class="ui conrainer">
-        {% block content %}{% endblock %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+
+                <ul class="navbar-nav mr-auto">　
+                  <li class="nav-item">
+                      <a href="{% url "article:index"%}" class="navbar-brand">TOP</a>
+                  </li>
+                </ul>
+                {% block login %}{% endblock %}
+
+            </div>
+        </div>
+    </nav>
+    <div class="container main">
+        <div class="row" style="margin: auto;">
+                <div class="col-md-10">
+                    {% block content %}{% endblock %}
+                </div>
+                <div class="sidebar col-md-2">
+                    {% block side-content %}{% endblock %}
+                </div>
+        </div>
     </div>
+    <div class="container-fluid">
+        {% block content_fluid %}{% endblock %}
+    </div>
+
+    {# mdeditorのcssのための設定 #}
+<script src="{% static 'mdeditor/js/jquery.min.js' %}"></script>
+<script src="{% static 'mdeditor/js/editormd.min.js' %}"></script>
+<script src="{% static 'mdeditor/js/lib/marked.min.js' %}"></script>
+<script src="{% static 'mdeditor/js/lib/prettify.min.js' %}"></script>
+<script src="{% static 'mdeditor/js/lib/raphael.min.js' %}"></script>
+<script src="{% static 'mdeditor/js/lib/underscore.min.js' %}"></script>
+<script src="{% static 'mdeditor/js/lib/sequence-diagram.min.js' %}"></script>
+<script src="{% static 'mdeditor/js/lib/flowchart.min.js' %}"></script>
+<script src="{% static 'mdeditor/js/lib/jquery.flowchart.min.js' %}"></script>
+<script src="/static/mdeditor/languages/en.js"></script>
+<script>
+  $(function () {
+      editormd.markdownToHTML("content", {
+          emoji           : true,
+          taskList        : true,
+          tex             : true,
+          flowChart       : true,
+          sequenceDiagram : true,
+      });
+      $(".reference-link").each(function (i,obj) {
+        console.log(obj)
+      })
+  })
+</script>
+
+{% block javascript %}{% endblock %}
+
 </body>
 </html>

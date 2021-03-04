@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,7 +28,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "lib",
+    "mdeditor",  # markdown
+    "bootstrap_datepicker_plus",
 ]
 
 MIDDLEWARE = [
@@ -70,8 +73,85 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 LOGIN_URL = "article:index"
-LOGIN_REDIRECT_URL = "article:index"
+LOGIN_REDIRECT_URL = "article:login_index"
 LOGOUT_REDIRECT_URL = "article:index"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media_root")
+
+# mdeditorを使用するための設定
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
+MDEDITOR_CONFIGS = {
+    "default": {
+        "width": "90% ",  # Custom edit box width
+        "heigth": 500,  # Custom edit box height
+        "toolbar": [
+            "undo",
+            "redo",
+            "|",
+            "bold",
+            "del",
+            "italic",
+            "quote",
+            "ucwords",
+            "uppercase",
+            "lowercase",
+            "|",
+            "h1",
+            "h2",
+            "h3",
+            "h5",
+            "h6",
+            "|",
+            "list-ul",
+            "list-ol",
+            "hr",
+            "|",
+            "link",
+            "reference-link",
+            "image",
+            "code",
+            "preformatted-text",
+            "code-block",
+            "table",
+            "datetime" "emoji",
+            "html-entities",
+            "pagebreak",
+            "goto-line",
+            "|",
+            "help",
+            "info",
+            "||",
+            "preview",
+            "watch",
+            "fullscreen",
+        ],  # custom edit box toolbar
+        "upload_image_formats": [
+            "jpg",
+            "jpeg",
+            "gif",
+            "png",
+            "bmp",
+            "webp",
+        ],  # image upload format type
+        "image_folder": "editor",  # image save the folder name
+        "theme": "default",  # edit box theme, dark / default
+        "preview_theme": "default",  # Preview area theme, dark / default
+        "editor_theme": "default",  # edit area theme, pastel-on-dark / default
+        "toolbar_autofixed": True,  # Whether the toolbar capitals
+        "search_replace": True,  # Whether to open the search for replacement
+        "emoji": True,  # whether to open the expression function
+        "tex": True,  # whether to open the tex chart function
+        "flow_chart": True,  # whether to open the flow chart function
+        "sequence": True,  # Whether to open the sequence diagram function
+        "watch": True,  # Live preview
+        "lineWrapping": False,  # lineWrapping
+        "lineNumbers": False,  # lineNumbers
+        "language": "en",
+    }
+}
+
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -132,4 +212,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+# STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+
+TESTING_MODE = "test" in sys.argv
+
+if DEBUG:
+
+    def show_toolbar(request):
+        return True
+
+    INSTALLED_APPS += ("debug_toolbar",)
+
+    MIDDLEWARE += ("debug_toolbar.middleware.DebugToolbarMiddleware",)
+
+    DEBUG_TOOLBAR_CONFIG = {
+        "SHOW_TOOLBAR_CALLBACK": show_toolbar,
+    }
