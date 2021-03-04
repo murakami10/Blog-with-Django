@@ -7,7 +7,8 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .forms import PostArticleForm
+from .forms import PrepareArticleForm
+from .forms import PrePostArticleForm
 from .models import Article
 from .models import ArticleCategory
 
@@ -100,7 +101,48 @@ class UserManagersTest(TestCase):
             )
 
 
-class PostArticleFormTest(TestCase):
+class PrepareArticleFormTest(TestCase):
+    def setUp(self) -> None:
+        self.category = ArticleCategory.objects.create(category="python")
+
+    def test_valid_form(self):
+        data = {
+            "title": "first python",
+            "summary": "python is good",
+            "publish_date": timezone.now() + timezone.timedelta(days=1),
+            "category": self.category,
+        }
+
+        form = PrepareArticleForm(data)
+        self.assertTrue(form.is_valid())
+
+    def test_not_valid_form(self):
+        data = {
+            "title": "first python",
+            "summary": "python is good",
+            "publish_date": timezone.now() + timezone.timedelta(days=1),
+            "category": self.category,
+        }
+
+        error_datas = {
+            "title": "",
+            "summary": "",
+            "publish_date": "1999/09/09",
+            "category": "python",
+        }
+        for key, value in error_datas.items():
+            error_data = data.copy()
+            error_data[key] = value
+            form = PrepareArticleForm(error_data)
+            self.assertFalse(form.is_valid())
+
+        past_data = data.copy()
+        past_data["publish_date"] = timezone.now() + timezone.timedelta(days=-1)
+        form = PrepareArticleForm(past_data)
+        self.assertFalse(form.is_valid())
+
+
+class PrePostArticleFormTest(TestCase):
     def setUp(self) -> None:
         self.category = ArticleCategory.objects.create(category="python")
 
@@ -113,7 +155,7 @@ class PostArticleFormTest(TestCase):
             "category": self.category,
         }
 
-        form = PostArticleForm(data)
+        form = PrePostArticleForm(data)
         self.assertTrue(form.is_valid())
 
     def test_not_valid_form(self):
@@ -135,12 +177,12 @@ class PostArticleFormTest(TestCase):
         for key, value in error_datas.items():
             error_data = data.copy()
             error_data[key] = value
-            form = PostArticleForm(error_data)
+            form = PrePostArticleForm(error_data)
             self.assertFalse(form.is_valid())
 
         past_data = data.copy()
         past_data["publish_date"] = timezone.now() + timezone.timedelta(days=-1)
-        form = PostArticleForm(past_data)
+        form = PrePostArticleForm(past_data)
         self.assertFalse(form.is_valid())
 
 
@@ -156,7 +198,7 @@ class LoginViewTests(TestCase):
         )
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertEqual(response["Location"], reverse("article:index"))
+        self.assertEqual(response["Location"], reverse("article:login_index"))
 
     def test_login_error(self):
         response = self.client.post(
