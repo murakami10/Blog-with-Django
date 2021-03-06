@@ -73,6 +73,45 @@ class LoginIndexViewTest(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
 
+class LoginAddCategoryTest(TestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_superuser(
+            email="test@test.com", password="aiueoaiueo"
+        )
+        self.category = ArticleCategory.objects.create(category="python")
+        self.client.force_login(self.user)
+
+    def test_login_add_category_success(self):
+
+        self.assertEqual(ArticleCategory.objects.count(), 1)
+        response = self.client.post(
+            reverse("article:add_category"),
+            data={"category": "django"},
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response["Location"], reverse("article:login_index"))
+        self.assertTrue(ArticleCategory.objects.filter(category="django").exists())
+        self.assertEqual(ArticleCategory.objects.count(), 2)
+
+    def test_login_add_category_error(self):
+        response = self.client.post(
+            reverse("article:add_category"),
+            data={"category": "python"},
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "そのカテゴリはすでに存在しています.")
+
+        response = self.client.post(
+            reverse("article:add_category"),
+            data={"category": ""},
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "このフィールドは必須です")
+
+
 class LoginEditViewTest(TestCase):
     def setUp(self) -> None:
         self.user = get_user_model().objects.create_superuser(
