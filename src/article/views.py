@@ -9,16 +9,20 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import DeleteView
 
+from .forms import AddCategoryForm
 from .forms import EmailAuthenticationForm
 from .forms import PrepareArticleForm
 from .forms import PrePostArticleForm
 from .models import Article
+from .models import ArticleCategory
 
 
 class IndexView(View):
     def get(self, request):
+
         if request.user.is_authenticated:
             return redirect("article:login_index")
+
         latest_article_list = (
             Article.objects.order_by("-publish_date")[:5]
             .select_related()
@@ -31,7 +35,10 @@ class IndexView(View):
                 "category__category",
             )
         )
-        context = {"latest_article_list": latest_article_list}
+        context = {
+            "latest_article_list": latest_article_list,
+            "category": ArticleCategory.objects.all(),
+        }
         return render(request, "article/index.html", context)
 
 
@@ -68,7 +75,11 @@ class LoginIndex(LoginRequiredMixin, View):
                 "category__category",
             )
         )
-        content = {"latest_article_list": latest_article_list, "user": user}
+        content = {
+            "latest_article_list": latest_article_list,
+            "user": user,
+            "category": ArticleCategory.objects.all(),
+        }
         return render(request, "article/login_index.html", content)
 
 
@@ -113,7 +124,7 @@ class LoginEdit(LoginRequiredMixin, View):
         return redirect("article:login_index")
 
 
-class LoginDelete(LoginRequiredMixin, DeleteView):
+class LoginDeleteArticle(LoginRequiredMixin, DeleteView):
     model = Article
     success_url = reverse_lazy("article:login_index")
     template_name = "article/login_delete.html"
@@ -170,4 +181,26 @@ class PostArticle(LoginRequiredMixin, View):
         article.set_author(request.user)
         form.save()
         messages.success(request, "投稿しました.")
+        return redirect("article:login_index")
+
+
+class AddCategory(LoginRequiredMixin, View):
+    def get(self, request):
+
+        return render(
+            request,
+            "article/add_category.html",
+            {"author": request.user, "form": AddCategoryForm},
+        )
+
+    def post(self, request):
+        form = AddCategoryForm(request.POST)
+        if not form.is_valid():
+            return render(
+                request,
+                "article/add_category.html",
+                {"author": request.user, "form": form},
+            )
+        form.save()
+        messages.success(request, "タグを追加しました.")
         return redirect("article:login_index")

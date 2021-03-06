@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.conf.urls import include
 from django.conf.urls import url
 from django.urls import path
@@ -26,8 +25,9 @@ urlpatterns = [
     ),
     path(
         "login/<int:pk>/delete/",
-        views.LoginDelete.as_view(),
+        views.LoginDeleteArticle.as_view(),
         name="login_delete",
     ),
+    path("login/add-article/", views.AddCategory.as_view(), name="add_category"),
     url(r"mdeditor/", include("mdeditor.urls")),
 ]

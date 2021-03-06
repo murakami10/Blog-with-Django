@@ -23,7 +23,7 @@
 
                 <ul class="navbar-nav mr-auto">　
                   <li class="nav-item">
-                      <a href="{% url "article:index"%}" class="navbar-brand">TOP</a>
+                      <a href="{% url "article:index"%}" class="navbar-brand">記事一覧</a>
                   </li>
                 </ul>
                 {% block login %}{% endblock %}
@@ -33,10 +33,10 @@
     </nav>
     <div class="container main">
         <div class="row" style="margin: auto;">
-                <div class="col-md-10">
+                <div class="main_content col-md-10">
                     {% block content %}{% endblock %}
                 </div>
-                <div class="sidebar col-md-2">
+                <div class="side_content sidebar col-md-2">
                     {% block side-content %}{% endblock %}
                 </div>
         </div>

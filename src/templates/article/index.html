@@ -10,6 +10,7 @@
 {% endblock %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/article/index.css' %}">
+    <div id="main_card">
         {% for article in latest_article_list %}
             <div class="card">
                 <a href="{% url "article:detail" article.id %}">
@@ -27,5 +28,18 @@
         {% empty %}
             記事が存在しません
         {% endfor %}
+    </div>
 
+{% endblock %}
+
+{% block side-content %}
+    <div id="side_category">
+        <h4>Category</h4>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">aiueo</li>
+            <li class="list-group-item">aiueo</li>
+            <li class="list-group-item">aiueo</li>
+            <li class="list-group-item">aiueo</li>
+        </ul>
+    </div>
 {% endblock %}
