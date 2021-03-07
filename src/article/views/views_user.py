@@ -37,4 +37,32 @@ class DetailView(View):
         if request.user.is_authenticated:
             return redirect("article:login_detail")
         article = get_object_or_404(Article, pk=article_id)
-        return render(request, "article/detail.html", {"article": article})
+        context = {
+            "article": article,
+            "category": ArticleCategory.objects.all(),
+        }
+        return render(request, "article/detail.html", context)
+
+
+class CategoryView(View):
+    def get(self, request, category):
+        latest_article_list_filtered_by_category = (
+            Article.objects.filter(category__category=category)
+            .order_by("-publish_date")[:5]
+            .select_related()
+            .values(
+                "id",
+                "title",
+                "author__username",
+                "summary",
+                "publish_date",
+                "category__category",
+            )
+        )
+
+        context = {
+            "latest_article_list": latest_article_list_filtered_by_category,
+            "category": ArticleCategory.objects.all(),
+            "filter_category": category,
+        }
+        return render(request, "article/index.html", context)

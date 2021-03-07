@@ -26,7 +26,7 @@ class Logout(LoginRequiredMixin, LogoutView):
     pass
 
 
-class LoginIndex(LoginRequiredMixin, View):
+class Index(LoginRequiredMixin, View):
     def get(self, request):
         user = request.user
         latest_article_list = (
@@ -50,16 +50,19 @@ class LoginIndex(LoginRequiredMixin, View):
         return render(request, "article/login_index.html", content)
 
 
-class LoginDetail(LoginRequiredMixin, View):
+class Detail(LoginRequiredMixin, View):
     def get(self, request, article_id):
         user = request.user
         article = get_object_or_404(Article, pk=article_id)
-        return render(
-            request, "article/login_detail.html", {"article": article, "user": user}
-        )
+        context = {
+            "article": article,
+            "category": ArticleCategory.objects.all(),
+            "user": user,
+        }
+        return render(request, "article/login_detail.html", context)
 
 
-class LoginEdit(LoginRequiredMixin, View):
+class Edit(LoginRequiredMixin, View):
     def get(self, request, article_id):
         user = request.user
         article = get_object_or_404(Article, pk=article_id)
@@ -91,7 +94,7 @@ class LoginEdit(LoginRequiredMixin, View):
         return redirect("article:login_index")
 
 
-class LoginDeleteArticle(LoginRequiredMixin, DeleteView):
+class Delete(LoginRequiredMixin, DeleteView):
     model = Article
     success_url = reverse_lazy("article:login_index")
     template_name = "article/login_delete.html"
@@ -149,6 +152,30 @@ class PostArticle(LoginRequiredMixin, View):
         form.save()
         messages.success(request, "投稿しました.")
         return redirect("article:login_index")
+
+
+class CategoryView(View):
+    def get(self, request, category):
+        latest_article_list_filtered_by_category = (
+            Article.objects.filter(category__category=category)
+            .order_by("-publish_date")[:5]
+            .select_related()
+            .values(
+                "id",
+                "title",
+                "author__username",
+                "summary",
+                "publish_date",
+                "category__category",
+            )
+        )
+
+        context = {
+            "latest_article_list": latest_article_list_filtered_by_category,
+            "category": ArticleCategory.objects.all(),
+            "filter_category": category,
+        }
+        return render(request, "article/login_index.html", context)
 
 
 class AddCategory(LoginRequiredMixin, View):

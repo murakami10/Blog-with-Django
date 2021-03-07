@@ -13,6 +13,12 @@
 	</ul>
 {% endif %}
     <div id="main_card">
+        {% if filter_category %}
+            <div style="text-align: center;padding-bottom: 10px;">
+                <h3>{{ filter_category }}カテゴリを選択</h3>
+            </div>
+        {% endif %}
+
         {% for article in latest_article_list %}
             <div class="card relative">
                 <div>
@@ -42,7 +48,7 @@
                 </div>
             </div>
         {% empty %}
-            記事が存在しません
+            <h2 style="text-align: center;padding-top:30px;">記事が存在しません</h2>
         {% endfor %}
     </div>
 {% endblock %}
@@ -52,7 +58,8 @@
         <h4>Category</h4>
         <ul class="list-group list-group-flush">
             {% for c in category %}
-                <li class="list-group-item">{{ c.category }}</li>
+                <li class="list-group-item"><a href="{% url "article:category"  c.category%}">{{ c.category }}</a></li>
+
             {% endfor %}
         </ul>
     </div>
