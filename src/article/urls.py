@@ -2,9 +2,6 @@ from django.conf.urls import include
 from django.conf.urls import url
 from django.urls import path
 
-import article.views.views_login
-import article.views.views_user
-
 from .views import views_login
 from .views import views_user
 
