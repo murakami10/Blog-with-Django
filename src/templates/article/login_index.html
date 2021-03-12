@@ -1,17 +1,7 @@
-{% extends "base.html" %}
+{% extends "article/login_base.html" %}
 {% load static %}
 {% block page_title %}記事一覧{% endblock %}
-{% block login %}
-<ul class="navbar-nav">
-    <li class="nav-item">
-        <a class="nav-link" href="{% url "article:prepare_post"%}">記事を投稿</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url "article:logout"%}">Logout</a>
-    </li>
-</ul>
-    <span class="navbar-text" style="color:red;">{{ user.username }}でログイン中</span>
-{% endblock %}
+
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/article/index.css' %}">
 <link rel="stylesheet" href="{% static 'css/article/login_index.css' %}">
@@ -22,7 +12,13 @@
 		{% endfor %}
 	</ul>
 {% endif %}
-        ログイン済み
+    <div id="main_card">
+        {% if filter_category %}
+            <div style="text-align: center;padding-bottom: 10px;">
+                <h3>{{ filter_category }}カテゴリを選択</h3>
+            </div>
+        {% endif %}
+
         {% for article in latest_article_list %}
             <div class="card relative">
                 <div>
@@ -52,7 +48,19 @@
                 </div>
             </div>
         {% empty %}
-            記事が存在しません
+            <h2 style="text-align: center;padding-top:30px;">記事が存在しません</h2>
         {% endfor %}
+    </div>
+{% endblock %}
 
+{% block side-content %}
+    <div id="side_category">
+        <h4>Category</h4>
+        <ul class="list-group list-group-flush">
+            {% for c in category %}
+                <li class="list-group-item"><a href="{% url "article:category"  c.category%}">{{ c.category }}</a></li>
+
+            {% endfor %}
+        </ul>
+    </div>
 {% endblock %}

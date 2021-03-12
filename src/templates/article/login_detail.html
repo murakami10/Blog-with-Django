@@ -1,41 +1,42 @@
 
-{% extends "base.html" %}
+{% extends "article/login_base.html" %}
 
 {% load markdown_extras %}
 
-{% block page_title %}記事一覧{% endblock %}
+{% block page_title %}記事の詳細{% endblock %}
 {% block addtional_css %}
 {% endblock %}
 
-
-{% block login %}
-<ul class="navbar-nav">
-    <li class="nav-item">
-        <a class="nav-link" href="{% url "article:prepare_post"%}">記事を投稿</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url "article:logout"%}">Logout</a>
-    </li>
-</ul>
-    <span class="navbar-text" style="color:red;">{{ user.username }}でログイン中</span>
-{% endblock %}
-
 {% block content %}
-    {% if article %}
-        author: {{ article.author.username }} <br/>
-        title: {{ article.title }}<br/>
-        summary: {{ article.summary }} <br/>
-        content:
-        <div id="content">{{ article.content |markdown|safe}} </div><br/>
-        publish_date: {{ article.publish_date }} <br/>
-        category: {{ article.category }} <br/>
+    <div style="border-right: solid 1px ;">
+        {% if article %}
+            author: {{ article.author.username }} <br/>
+            title: {{ article.title }}<br/>
+            summary: {{ article.summary }} <br/>
+            content:
+            <div id="content">{{ article.content |markdown|safe}} </div><br/>
+            publish_date: {{ article.publish_date }} <br/>
+            category: {{ article.category }} <br/>
 
-    {% else %}
-        記事はありません
-    {% endif %}
+        {% else %}
+            <h2>記事はありません</h2>
+        {% endif %}
+    </div>
 
     <a href="{% url "article:index" %}">記事一覧</a>
 {% endblock %}
 {% block body_end %}
 
+{% endblock %}
+
+{% block side-content %}
+    <div id="side_category">
+        <h4>Category</h4>
+        <ul class="list-group list-group-flush">
+            {% for c in category %}
+                <li class="list-group-item"><a href="{% url "article:category"  c.category%}">{{ c.category }}</a></li>
+
+            {% endfor %}
+        </ul>
+    </div>
 {% endblock %}

@@ -1,4 +1,12 @@
 
 .card{
-    max-width: 900px;
+    max-width: 1000px;
+}
+
+#main_card{
+    padding-top: 70px;
+}
+
+#side_category{
+    padding-top: 70px;
 }

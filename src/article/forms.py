@@ -140,3 +140,25 @@ class PrepareArticleForm(forms.Form):
 
     def is_future_date(self, date):
         return date > timezone.now()
+
+
+class AddCategoryForm(forms.ModelForm):
+    class Meta:
+        model = ArticleCategory
+        fields = "__all__"
+        labels = {
+            "category": "category",
+        }
+
+    error_message = {
+        "exited_category": "そのカテゴリはすでに存在しています.",
+    }
+
+    def clean_category(self):
+        category = self.cleaned_data.get("category")
+        if ArticleCategory.objects.filter(category=category).exists():
+            raise forms.ValidationError(
+                self.error_message["exited_category"],
+                code="exited_category",
+            )
+        return category
