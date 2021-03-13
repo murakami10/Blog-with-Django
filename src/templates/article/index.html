@@ -12,27 +12,31 @@
 <link rel="stylesheet" href="{% static 'css/article/index.css' %}">
    <div id="main_card">
        {% if filter_category %}
-            <div style="text-align: center;padding-bottom: 10px;">
-                <h3>{{ filter_category }}カテゴリを選択</h3>
-            </div>
+           <div style="text-align: center;padding-bottom: 10px;">
+               <h3>{{ filter_category }}カテゴリを選択</h3>
+           </div>
        {% endif %}
-        {% for article in latest_article_list %}
-            <div class="card">
-                <a href="{% url "article:detail" article.id %}">
-                    <div class="card-header">
-                        <p class="h1">title:{{ article.title }}</p>
-                    </div>
-                </a>
-                <div class="card-body">
-                    author: {{ article.author__username }} <br/>
-                    summary: {{ article.summary }} <br/>
-                    publish_date: {{ article.publish_date }} <br/>
-                    category: {{ article.category__category }} <br/>
-                </div>
-            </div>
-        {% empty %}
-            <h2 style="text-align: center; padding-top: 30px;">記事が存在しません</h2>
-        {% endfor %}
+
+       {% for article in pages %}
+           <div class="card">
+               <a href="{% url "article:detail" article.id %}">
+                   <div class="card-header">
+                       <p class="h1">title:{{ article.title }}</p>
+                   </div>
+               </a>
+               <div class="card-body">
+                   author: {{ article.author__username }} <br/>
+                   summary: {{ article.summary }} <br/>
+                   publish_date: {{ article.publish_date }} <br/>
+                   category: {{ article.category__category }} <br/>
+               </div>
+           </div>
+       {% empty %}
+           <h2 style="text-align: center; padding-top: 30px;">記事が存在しません</h2>
+       {% endfor %}
+
+       {% include "article/include/pagenation.html" %}
+
     </div>
 
 {% endblock %}

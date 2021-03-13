@@ -1,3 +1,6 @@
+from django.core.paginator import EmptyPage
+from django.core.paginator import PageNotAnInteger
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -14,7 +17,7 @@ class IndexView(View):
             return redirect("article:login_index")
 
         latest_article_list = (
-            Article.objects.order_by("-publish_date")[:5]
+            Article.objects.order_by("-publish_date")
             .select_related()
             .values(
                 "id",
@@ -25,10 +28,23 @@ class IndexView(View):
                 "category__category",
             )
         )
+
+        # ページ機能
+        page = request.GET.get("page", 1)
+
+        article_per_page = 5
+        paginator = Paginator(latest_article_list, article_per_page)
+
+        try:
+            pages = paginator.page(page)
+        except (PageNotAnInteger, EmptyPage):
+            pages = paginator.page(1)
+
         context = {
-            "latest_article_list": latest_article_list,
             "category": ArticleCategory.objects.all(),
+            "pages": pages,
         }
+
         return render(request, "article/index.html", context)
 
 
@@ -48,7 +64,7 @@ class CategoryView(View):
     def get(self, request, category):
         latest_article_list_filtered_by_category = (
             Article.objects.filter(category__category=category)
-            .order_by("-publish_date")[:5]
+            .order_by("-publish_date")
             .select_related()
             .values(
                 "id",
@@ -60,9 +76,23 @@ class CategoryView(View):
             )
         )
 
+        # ページ機能
+        page = request.GET.get("page", 1)
+
+        article_per_page = 5
+        paginator = Paginator(
+            latest_article_list_filtered_by_category, article_per_page
+        )
+
+        try:
+            pages = paginator.page(page)
+        except (PageNotAnInteger, EmptyPage):
+            pages = paginator.page(1)
+
         context = {
-            "latest_article_list": latest_article_list_filtered_by_category,
             "category": ArticleCategory.objects.all(),
             "filter_category": category,
+            "pages": pages,
         }
+
         return render(request, "article/index.html", context)

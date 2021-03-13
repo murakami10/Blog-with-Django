@@ -19,7 +19,7 @@
             </div>
         {% endif %}
 
-        {% for article in latest_article_list %}
+        {% for article in pages %}
             <div class="card relative">
                 <div>
                     <a href="{% url "article:login_detail" article.id %}">
@@ -51,6 +51,9 @@
             <h2 style="text-align: center;padding-top:30px;">記事が存在しません</h2>
         {% endfor %}
     </div>
+
+    {% include "article/include/pagenation.html" %}
+
 {% endblock %}
 
 {% block side-content %}
