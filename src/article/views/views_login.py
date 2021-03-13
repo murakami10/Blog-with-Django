@@ -43,6 +43,7 @@ class Index(LoginRequiredMixin, View):
                 "author__username",
                 "summary",
                 "publish_date",
+                "public",
                 "category__category",
             )
         )

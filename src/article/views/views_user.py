@@ -18,6 +18,7 @@ class IndexView(View):
 
         latest_article_list = (
             Article.objects.order_by("-publish_date")
+            .filter(public=1)
             .select_related()
             .values(
                 "id",
@@ -53,6 +54,11 @@ class DetailView(View):
         if request.user.is_authenticated:
             return redirect("article:login_detail")
         article = get_object_or_404(Article, pk=article_id)
+
+        # 非公開の記事にアクセス
+        if not article.public:
+            return redirect("article:index")
+
         context = {
             "article": article,
             "category": ArticleCategory.objects.all(),

@@ -9,6 +9,44 @@ from article.models import Article
 from article.models import ArticleCategory
 
 
+class IndexViewTests(TestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_superuser(
+            email="test@test.com", password="aiueoaiueo"
+        )
+        self.category = ArticleCategory.objects.create(category="python")
+        # 公開記事
+        data = {
+            "author": self.user,
+            "title": "first python",
+            "summary": "python is good",
+            "content": "python is good language",
+            "publish_date": timezone.now() + timezone.timedelta(days=-1),
+            "public": True,
+            "category": self.category,
+        }
+        self.article = Article.objects.create(**data)
+
+        # 非公開記事
+        data_not_public = {
+            "author": self.user,
+            "title": "second python",
+            "summary": "python is bad",
+            "content": "python is bad language",
+            "publish_date": timezone.now() + timezone.timedelta(days=-1),
+            "public": False,
+            "category": self.category,
+        }
+        self.article_not_public = Article.objects.create(**data_not_public)
+
+    def test_display_article(self):
+        response = self.client.get(reverse("article:index"))
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "first python")
+        self.assertNotContains(response, "second python")
+
+
 class LoginViewTests(TestCase):
     def setUp(self) -> None:
         get_user_model().objects.create_superuser(

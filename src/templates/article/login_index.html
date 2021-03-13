@@ -27,7 +27,13 @@
                             <p class="h1">title:{{ article.title }}</p>
                         </div>
                     </a>
+
                     {% if user.id == article.author_id %}
+                        {% if article.public == 0 %}
+                            <div id="not_public">
+                                <p style="color:red;">非公開</p>
+                            </div>
+                        {% endif %}
                         <div id="edit">
                             <a href="{% url "article:login_edit" article.id %}">
                                 <div class="btn btn-success">edit</div>

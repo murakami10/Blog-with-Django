@@ -48,10 +48,14 @@ class Article(models.Model):
     summary = models.CharField(verbose_name="記事の要約", max_length=255)
     content = MDTextField()
     publish_date = models.DateTimeField(verbose_name="投稿日")
+    public = models.BooleanField(verbose_name="公開状態", default=0)
     category = models.ForeignKey(ArticleCategory, on_delete=models.PROTECT)
 
     def set_author(self, user: User):
         self.author_id = user.id
+
+    def publish_article(self):
+        self.public = True
 
     def __str__(self):
         return self.title

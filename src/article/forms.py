@@ -81,7 +81,13 @@ class PrePostArticleForm(forms.ModelForm):
         }
         widgets = {"summary": forms.Textarea(attrs={"cols": 50})}
 
-    error_messages = {"future_date": "未来の日付になっています."}
+    public = forms.BooleanField(
+        label="記事を公開",
+        initial=False,
+        required=False,
+    )
+
+    error_messages = {"future_date": "過去の日付になっています."}
 
     def clean_publish_date(self):
         publish_date = self.cleaned_data.get("publish_date")
