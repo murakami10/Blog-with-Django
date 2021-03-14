@@ -1,5 +1,6 @@
 {% extends "article/login_base.html" %}
 {% load static %}
+{% load calc_date %}
 {% block page_title %}記事一覧{% endblock %}
 
 {% block content %}
@@ -32,6 +33,10 @@
                         {% if article.public == 0 %}
                             <div id="not_public">
                                 <p style="color:red;">非公開</p>
+                            </div>
+                        {% elif article.publish_date|is_future_date %}
+                            <div id="is_future">
+                                <p style="color:green;">公開予定</p>
                             </div>
                         {% endif %}
                         <div id="edit">

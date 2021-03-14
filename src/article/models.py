@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import ASCIIUsernameValidator
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from mdeditor.fields import MDTextField
 
@@ -56,6 +57,9 @@ class Article(models.Model):
 
     def publish_article(self):
         self.public = True
+
+    def is_in_future(self):
+        return self.publish_date >= timezone.now()
 
     def __str__(self):
         return self.title

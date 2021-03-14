@@ -34,6 +34,8 @@ urlpatterns = [
         views_login.Delete.as_view(),
         name="login_delete",
     ),
-    path("login/add-article/", views_login.AddCategory.as_view(), name="add_category"),
+    path(
+        "login/add-article/", views_login.AddCategoryView.as_view(), name="add_category"
+    ),
     url(r"mdeditor/", include("mdeditor.urls")),
 ]

@@ -9,6 +9,12 @@
     right: 190px;
 }
 
+#is_future{
+    position: absolute;
+    top: 28px;
+    right: 190px;
+}
+
 #edit{
     position: absolute;
     top: 20px;

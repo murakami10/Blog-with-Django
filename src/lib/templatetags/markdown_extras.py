@@ -5,7 +5,7 @@ from django.template.defaultfilters import stringfilter
 register = template.Library()
 
 
-@register.filter()
+@register.filter
 @stringfilter
 def markdown(value):
     return md.markdown(

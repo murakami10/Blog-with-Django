@@ -4,6 +4,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
+from django.utils import timezone
 from django.views import View
 
 from article.models import Article
@@ -18,7 +19,7 @@ class IndexView(View):
 
         latest_article_list = (
             Article.objects.order_by("-publish_date")
-            .filter(public=1)
+            .filter(public=1, publish_date__lte=timezone.now())
             .select_related()
             .values(
                 "id",
@@ -55,8 +56,8 @@ class DetailView(View):
             return redirect("article:login_detail")
         article = get_object_or_404(Article, pk=article_id)
 
-        # 非公開の記事にアクセス
-        if not article.public:
+        # 非公開, 未公開の記事にアクセス
+        if not article.public or article.is_in_future():
             return redirect("article:index")
 
         context = {
@@ -71,6 +72,7 @@ class CategoryView(View):
         latest_article_list_filtered_by_category = (
             Article.objects.filter(category__category=category)
             .order_by("-publish_date")
+            .filter(public=1, publish_date__lte=timezone.now())
             .select_related()
             .values(
                 "id",

@@ -213,7 +213,7 @@ class CategoryView(View):
         return render(request, "article/login_index.html", context)
 
 
-class AddCategory(LoginRequiredMixin, View):
+class AddCategoryView(LoginRequiredMixin, View):
     def get(self, request):
 
         return render(
