@@ -13,6 +13,7 @@ from django.views import View
 from django.views.generic import DeleteView
 
 from article.forms import AddCategoryForm
+from article.forms import EditArticleForm
 from article.forms import EmailAuthenticationForm
 from article.forms import PrepareArticleForm
 from article.forms import PrePostArticleForm
@@ -88,7 +89,7 @@ class Edit(LoginRequiredMixin, View):
         if article.author_id != user.id:
             redirect("article:index")
 
-        form = PrePostArticleForm(instance=article)
+        form = EditArticleForm(instance=article)
         return render(
             request,
             "article/login_edit.html",
@@ -98,15 +99,18 @@ class Edit(LoginRequiredMixin, View):
     def post(self, request, article_id):
         user = request.user
         article = get_object_or_404(Article, pk=article_id)
+
         if article.author_id != user.id:
             redirect("article:index")
-        form = PrePostArticleForm(request.POST, instance=article)
+
+        form = EditArticleForm(request.POST, instance=article)
         if not form.is_valid():
             return render(
                 request,
                 "article/login_edit.html",
                 {"author": user.username, "form": form},
             )
+
         form.save()
         messages.success(request, "更新しました")
         return redirect("article:login_index")

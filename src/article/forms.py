@@ -132,7 +132,7 @@ class PrepareArticleForm(forms.Form):
         label="カテゴリー", queryset=ArticleCategory.objects.all()
     )
 
-    error_messages = {"future_date": "未来の日付になっています."}
+    error_messages = {"future_date": "過去の日付になっています."}
 
     def clean_publish_date(self):
         publish_date = self.cleaned_data.get("publish_date")
@@ -146,6 +146,25 @@ class PrepareArticleForm(forms.Form):
 
     def is_future_date(self, date):
         return date > timezone.now()
+
+
+class EditArticleForm(forms.ModelForm):
+    class Meta:
+        model = Article
+        exclude = ("author",)
+        labels = {
+            "title": "タイトル",
+            "summary": "要約",
+            "content": "内容",
+            "publish_date": "投稿予定日",
+            "category": "カテゴリー",
+        }
+        widgets = {"summary": forms.Textarea(attrs={"cols": 50})}
+
+    public = forms.BooleanField(
+        label="記事を公開",
+        required=False,
+    )
 
 
 class AddCategoryForm(forms.ModelForm):

@@ -88,6 +88,18 @@ class PrePostArticleFormTest(TestCase):
         form = PrePostArticleForm(data)
         self.assertTrue(form.is_valid())
 
+    def test_valid_past_article_error(self):
+        data = {
+            "title": "first python",
+            "summary": "python is good",
+            "content": "python is good language",
+            "publish_date": timezone.now() + timezone.timedelta(days=-1),
+            "category": self.category,
+        }
+
+        form = PrePostArticleForm(data)
+        self.assertFalse(form.is_valid())
+
     def test_not_valid_form(self):
         data = {
             "title": "first python",

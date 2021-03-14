@@ -136,7 +136,6 @@ class AddArticleViewTest(TestCase):
 
     def test_add_article_success(self):
 
-        self.assertEqual(ArticleCategory.objects.count(), 1)
         # 公開予定記事
         data = {
             "author": self.user,
@@ -159,6 +158,30 @@ class AddArticleViewTest(TestCase):
         response = self.client.get(reverse("article:login_index"))
         self.assertContains(response, "third python")
         self.assertContains(response, "公開予定")
+
+    def test_add_past_article_error(self):
+
+        # 過去の日付の記事
+        data = {
+            "author": self.user,
+            "title": "third python",
+            "summary": "python is soso",
+            "content": "python is normal language",
+            "publish_date": timezone.now() + timezone.timedelta(days=-1),
+            "public": True,
+            "category": self.category.pk,
+        }
+
+        response = self.client.post(
+            reverse("article:post"),
+            data=data,
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "過去の日付になっています.")
+
+        response = self.client.get(reverse("article:login_index"))
+        self.assertNotContains(response, "third python")
 
 
 class AddCategoryViewTest(TestCase):
@@ -251,7 +274,6 @@ class EditViewTest(TestCase):
 
     def test_edit_success(self):
         self.client.force_login(self.user)
-
         response = self.client.post(
             reverse("article:login_edit", kwargs={"article_id": self.article.pk}),
             data={
@@ -259,6 +281,7 @@ class EditViewTest(TestCase):
                 "summary": "python is good",
                 "content": "python is good language",
                 "publish_date": timezone.now() + timezone.timedelta(days=1),
+                "public": True,
                 "category": self.category.id,
             },
         )
@@ -266,15 +289,38 @@ class EditViewTest(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         self.assertEqual(response["Location"], reverse("article:login_index"))
 
-    def test_edit_error(self):
+    def test_edit_article_past_day_success(self):
         self.client.force_login(self.user)
-
         response = self.client.post(
             reverse("article:login_edit", kwargs={"article_id": self.article.pk}),
             data={
                 "title": "second python",
                 "summary": "python is good",
                 "content": "python is good language",
+                "publish_date": timezone.now() + timezone.timedelta(days=-1),
+                "public": True,
+                "category": self.category.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response["Location"], reverse("article:login_index"))
+
+        response = self.client.get(reverse("article:login_index"))
+
+        self.assertContains(response, "second python")
+        self.assertNotContains(response, "非公開")
+        self.assertNotContains(response, "公開予定")
+
+    def test_edit_error(self):
+        self.client.force_login(self.user)
+        response = self.client.post(
+            reverse("article:login_edit", kwargs={"article_id": self.article.pk}),
+            data={
+                "title": "second python",
+                "summary": "python is good",
+                "content": "python is good language",
+                "public": True,
                 "publish_date": timezone.now() + timezone.timedelta(days=1),
             },
         )
