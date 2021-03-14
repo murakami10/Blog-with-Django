@@ -9,44 +9,6 @@ from article.models import Article
 from article.models import ArticleCategory
 
 
-class IndexViewTests(TestCase):
-    def setUp(self) -> None:
-        self.user = get_user_model().objects.create_superuser(
-            email="test@test.com", password="aiueoaiueo"
-        )
-        self.category = ArticleCategory.objects.create(category="python")
-        # 公開記事
-        data = {
-            "author": self.user,
-            "title": "first python",
-            "summary": "python is good",
-            "content": "python is good language",
-            "publish_date": timezone.now() + timezone.timedelta(days=-1),
-            "public": True,
-            "category": self.category,
-        }
-        self.article = Article.objects.create(**data)
-
-        # 非公開記事
-        data_not_public = {
-            "author": self.user,
-            "title": "second python",
-            "summary": "python is bad",
-            "content": "python is bad language",
-            "publish_date": timezone.now() + timezone.timedelta(days=-1),
-            "public": False,
-            "category": self.category,
-        }
-        self.article_not_public = Article.objects.create(**data_not_public)
-
-    def test_display_article(self):
-        response = self.client.get(reverse("article:index"))
-
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "first python")
-        self.assertNotContains(response, "second python")
-
-
 class LoginViewTests(TestCase):
     def setUp(self) -> None:
         get_user_model().objects.create_superuser(
@@ -79,23 +41,25 @@ class LoginViewTests(TestCase):
         self.assertContains(response, "Eメールアドレス または パスワードに誤りがあります.")
 
 
-class LoginIndexViewTest(TestCase):
+class IndexViewTest(TestCase):
     def setUp(self) -> None:
         self.user = get_user_model().objects.create_superuser(
             email="test@test.com", password="aiueoaiueo"
         )
         self.category = ArticleCategory.objects.create(category="python")
+
+    def test_display_public_article_success(self):
+        # 公開記事
         data = {
             "author": self.user,
             "title": "first python",
             "summary": "python is good",
             "content": "python is good language",
-            "publish_date": timezone.now() + timezone.timedelta(days=1),
+            "publish_date": timezone.now() + timezone.timedelta(days=-1),
+            "public": True,
             "category": self.category,
         }
         self.article = Article.objects.create(**data)
-
-    def test_login_index_success(self):
 
         # self.client.login(email="test@test.com", password="aiueoaiueo")
         self.client.force_login(self.user)
@@ -104,6 +68,57 @@ class LoginIndexViewTest(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "first python")
         self.assertContains(response, "edit")
+        self.assertContains(response, "delete")
+        self.assertNotContains(response, "非公開")
+        self.assertNotContains(response, "公開予定")
+
+    def test_display_not_public_article_success(self):
+
+        # 非公開記事
+        data_not_public = {
+            "author": self.user,
+            "title": "second python",
+            "summary": "python is bad",
+            "content": "python is bad language",
+            "publish_date": timezone.now() + timezone.timedelta(days=-1),
+            "public": False,
+            "category": self.category,
+        }
+        self.article_not_public = Article.objects.create(**data_not_public)
+
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("article:login_index"))
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "second python")
+        self.assertContains(response, "edit")
+        self.assertContains(response, "delete")
+        self.assertContains(response, "非公開")
+        self.assertNotContains(response, "公開予定")
+
+    def test_display_article_in_future_success(self):
+
+        # 公開予定記事
+        data_in_future = {
+            "author": self.user,
+            "title": "third python",
+            "summary": "python is soso",
+            "content": "python is normal language",
+            "publish_date": timezone.now() + timezone.timedelta(days=1),
+            "public": True,
+            "category": self.category,
+        }
+        self.article_in_future = Article.objects.create(**data_in_future)
+
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("article:login_index"))
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "third python")
+        self.assertContains(response, "edit")
+        self.assertContains(response, "delete")
+        self.assertNotContains(response, "非公開")
+        self.assertContains(response, "公開予定")
 
     def test_login_index_error(self):
         response = self.client.get(reverse("article:login_index"))
@@ -111,7 +126,42 @@ class LoginIndexViewTest(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
 
-class LoginAddCategoryTest(TestCase):
+class AddArticleViewTest(TestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_superuser(
+            email="test@test.com", password="aiueoaiueo"
+        )
+        self.category = ArticleCategory.objects.create(category="python")
+        self.client.force_login(self.user)
+
+    def test_add_article_success(self):
+
+        self.assertEqual(ArticleCategory.objects.count(), 1)
+        # 公開予定記事
+        data = {
+            "author": self.user,
+            "title": "third python",
+            "summary": "python is soso",
+            "content": "python is normal language",
+            "publish_date": timezone.now() + timezone.timedelta(days=1),
+            "public": True,
+            "category": self.category.pk,
+        }
+
+        response = self.client.post(
+            reverse("article:post"),
+            data=data,
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(response["Location"], reverse("article:login_index"))
+
+        response = self.client.get(reverse("article:login_index"))
+        self.assertContains(response, "third python")
+        self.assertContains(response, "公開予定")
+
+
+class AddCategoryViewTest(TestCase):
     def setUp(self) -> None:
         self.user = get_user_model().objects.create_superuser(
             email="test@test.com", password="aiueoaiueo"
@@ -150,7 +200,7 @@ class LoginAddCategoryTest(TestCase):
         self.assertContains(response, "このフィールドは必須です")
 
 
-class LoginEditViewTest(TestCase):
+class DeleteViewTest(TestCase):
     def setUp(self) -> None:
         self.user = get_user_model().objects.create_superuser(
             email="test@test.com", password="aiueoaiueo"
@@ -162,6 +212,39 @@ class LoginEditViewTest(TestCase):
             "summary": "python is good",
             "content": "python is good language",
             "publish_date": timezone.now() + timezone.timedelta(days=1),
+            "public": True,
+            "category": self.category,
+        }
+        self.article = Article.objects.create(**data)
+        self.client.force_login(self.user)
+
+    def test_delete_article_sucess(self):
+
+        response = self.client.get(reverse("article:login_index"))
+        self.assertContains(response, "first python")
+
+        response = self.client.post(
+            reverse("article:login_delete", kwargs={"pk": self.article.pk})
+        )
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+
+        response = self.client.get(reverse("article:login_index"))
+        self.assertNotContains(response, "first python")
+
+
+class EditViewTest(TestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_superuser(
+            email="test@test.com", password="aiueoaiueo"
+        )
+        self.category = ArticleCategory.objects.create(category="python")
+        data = {
+            "author": self.user,
+            "title": "first python",
+            "summary": "python is good",
+            "content": "python is good language",
+            "publish_date": timezone.now() + timezone.timedelta(days=1),
+            "public": True,
             "category": self.category,
         }
         self.article = Article.objects.create(**data)

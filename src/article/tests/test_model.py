@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.db import transaction
 from django.db import utils
 from django.test import TestCase
 from django.utils import timezone
@@ -9,58 +8,89 @@ from article.models import ArticleCategory
 
 
 class ArticleCategoryTest(TestCase):
+    def setUp(self) -> None:
+        self.category = ArticleCategory.objects.create(category="python")
+
     def test_create_category(self):
-        category = ArticleCategory.objects.create(category="python")
-        self.assertEqual(category.category, "python")
-        self.assertNotEqual(category.category, "Python")
-        self.assertNotEqual(category.category, " python")
+        self.assertEqual(self.category.category, "python")
+        self.assertNotEqual(self.category.category, "Python")
+        self.assertNotEqual(self.category.category, " python")
+
+    def test_make_same_category(self):
         with self.assertRaises(utils.IntegrityError):
-            with transaction.atomic():
-                ArticleCategory.objects.create(category="python")
-            with transaction.atomic():
-                ArticleCategory.objects.create(category="python")
+            ArticleCategory.objects.create(category="python")
+
+    def test_category_length_is_over(self):
         with self.assertRaises(utils.DataError):
-            with transaction.atomic():
-                ArticleCategory.objects.create(
-                    category="aiueoaiueoaiueoaiueoa",
-                )
+            ArticleCategory.objects.create(
+                category="aiueoaiueoaiueoaiueoa",
+            )
 
 
 class ArticleTest(TestCase):
-    def test_create_article(self):
-        c = ArticleCategory.objects.create(category="python")
+    def setUp(self) -> None:
+        self.c = ArticleCategory.objects.create(category="python")
         user = get_user_model()
-        u = user.objects.create_user(email="test@test.com", password="test")
-        article = Article.objects.create(
-            author=u,
+        self.u = user.objects.create_user(email="test@test.com", password="test")
+        self.u2 = user.objects.create_user(email="test2@test2.com", password="test2")
+
+        self.article = Article.objects.create(
+            author=self.u,
             title="python tour",
             summary="python is good",
             content="python is good lang",
-            publish_date=timezone.now(),
-            category=c,
+            publish_date=timezone.now() + timezone.timedelta(days=-1),
+            public=True,
+            category=self.c,
         )
-        self.assertEqual(article.author.email, u.email)
-        self.assertEqual(article.title, "python tour")
-        self.assertEqual(article.summary, "python is good")
-        self.assertEqual(article.content, "python is good lang")
-        self.assertEqual(article.category.category, c.category)
+
+        self.article_future = Article.objects.create(
+            author=self.u,
+            title="python tour",
+            summary="python is good",
+            content="python is good lang",
+            publish_date=timezone.now() + timezone.timedelta(days=1),
+            public=True,
+            category=self.c,
+        )
+
+    def test_create_article(self):
+
+        self.assertEqual(self.article.author.email, self.u.email)
+        self.assertEqual(self.article.title, "python tour")
+        self.assertEqual(self.article.summary, "python is good")
+        self.assertEqual(self.article.content, "python is good lang")
+        self.assertEqual(self.article.category.category, self.c.category)
+
+    def test_title_length_is_over(self):
+
         with self.assertRaises(utils.DataError):
-            with transaction.atomic():
-                Article.objects.create(
-                    author=u,
-                    title="p" * 256,
-                    summary="python is good",
-                    content="python is good lang",
-                    publish_date=timezone.now(),
-                    category=c,
-                )
+            Article.objects.create(
+                author=self.u,
+                title="p" * 256,
+                summary="python is good",
+                content="python is good lang",
+                publish_date=timezone.now(),
+                category=self.c,
+            )
+
+    def test_summary_length_is_over(self):
+
         with self.assertRaises(utils.DataError):
-            with transaction.atomic():
-                Article.objects.create(
-                    author=u,
-                    title="p",
-                    summary="p" * 256,
-                    content="python is good lang",
-                    publish_date=timezone.now(),
-                    category=c,
-                )
+            Article.objects.create(
+                author=self.u,
+                title="p",
+                summary="p" * 256,
+                content="python is good lang",
+                publish_date=timezone.now(),
+                category=self.c,
+            )
+
+    def test_article_is_in_future(self):
+        self.assertFalse(self.article.is_in_future())
+        self.assertTrue(self.article_future.is_in_future())
+
+    def test_set_author(self):
+        self.assertEqual(self.article.author, self.u)
+        self.article.set_author(self.u2)
+        self.assertEqual(self.article.author, self.u2)
