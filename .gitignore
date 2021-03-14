@@ -13,3 +13,5 @@ mysql/*
 # for mypy(library)
 .mypy_cache
 
+# django
+media_root
