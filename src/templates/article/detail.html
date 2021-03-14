@@ -1,26 +1,25 @@
-
 {% extends "base.html" %}
+{% load static %}
 {% load markdown_extras %}
 
 {% block page_title %}記事一覧{% endblock %}
 
 {% block content %}
-    <div style="border-right: solid 1px ;">
-        {% if article %}
-            author: {{ article.author.username }} <br/>
-            title: {{ article.title }}<br/>
-            summary: {{ article.summary }} <br/>
-            content:
-            <div id="content"> {{ article.content |markdown|safe}} </div><br/>
-            publish_date: {{ article.publish_date }} <br/>
-            category: {{ article.category}} <br/>
+<link rel="stylesheet" href="{% static 'css/article/detail.css' %}">
+    {% if article %}
+        author: {{ article.author.username }} <br/>
+        title: {{ article.title }}<br/>
+        summary: {{ article.summary }} <br/>
+        content:
+        <div id="content"> {{ article.content |markdown|safe}} </div><br/>
+        publish_date: {{ article.publish_date }} <br/>
+        category: {{ article.category}} <br/>
 
-        {% else %}
-            <h2>記事はありません</h2>
-        {% endif %}
+    {% else %}
+        <h2>記事はありません</h2>
+    {% endif %}
 
-        <a href="{% url "article:index" %}">記事一覧</a>
-    </div>
+    <a href="{% url "article:index" %}">記事一覧</a>
 {% endblock %}
 
 {% block side-content %}

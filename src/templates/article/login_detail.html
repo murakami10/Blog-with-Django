@@ -1,13 +1,15 @@
 
 {% extends "article/login_base.html" %}
-
+{% load static %}
 {% load markdown_extras %}
+
 
 {% block page_title %}記事の詳細{% endblock %}
 {% block addtional_css %}
 {% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'css/article/detail.css' %}">
     <div style="border-right: solid 1px ;">
         {% if article %}
             author: {{ article.author.username }} <br/>
