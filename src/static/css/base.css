@@ -11,6 +11,7 @@ body{
     max-width: 1200px;
     border: solid 0.5px;
     border-top: none;
+    padding-bottom: 70px;
 }
 
 .main_content{

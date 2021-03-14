@@ -1,6 +1,6 @@
 <nav aria-label="Page navigation">
     {% if pages.has_other_pages %}
-        <ul class="pagination">
+        <ul class="pagination" style="padding-top: 20px;">
             {% if pages.has_previous %}
                 <li class="page-item"><a class="page-link" href="?page={{ pages.previous_page_number }}">&laquo;</a></li>
             {% else %}
