@@ -112,6 +112,54 @@ class DetailViewTests(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "first python")
 
+    # 次の記事と前の記事が表示される
+    def test_display_next_pre_article(self):
+
+        pre_data = {
+            "id": 4,
+            "author": self.user,
+            "title": "pre title",
+            "summary": "python is pre good",
+            "content": "python is pre language",
+            "publish_date": timezone.now() + timezone.timedelta(days=-2),
+            "public": True,
+            "category": self.category,
+        }
+        Article.objects.create(**pre_data)
+
+        next_data = {
+            "id": 5,
+            "author": self.user,
+            "title": "next title",
+            "summary": "python is next good",
+            "content": "python is next language",
+            "publish_date": timezone.now() + timezone.timedelta(hours=-12),
+            "public": True,
+            "category": self.category,
+        }
+        Article.objects.create(**next_data)
+
+        response = self.client.get(reverse("article:detail", kwargs={"article_id": 1}))
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "next title")
+        self.assertContains(response, "pre title")
+
+        response = self.client.get(
+            reverse("article:detail", kwargs={"article_id": pre_data["id"]})
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "pre title")
+        self.assertContains(response, "first python")
+        self.assertNotContains(response, "next title")
+
+        response = self.client.get(
+            reverse("article:detail", kwargs={"article_id": next_data["id"]})
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertNotContains(response, "pre title")
+        self.assertContains(response, "first python")
+        self.assertContains(response, "next title")
+
     def test_access_not_public_article_redirect(self):
         response = self.client.get(reverse("article:detail", kwargs={"article_id": 2}))
 

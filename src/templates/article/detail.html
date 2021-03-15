@@ -6,20 +6,40 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/article/detail.css' %}">
-    {% if article %}
-        author: {{ article.author.username }} <br/>
-        title: {{ article.title }}<br/>
-        summary: {{ article.summary }} <br/>
-        content:
-        <div id="content"> {{ article.content |markdown|safe}} </div><br/>
-        publish_date: {{ article.publish_date }} <br/>
-        category: {{ article.category}} <br/>
+    <div class="detail-main">
+        {% if article %}
+            author: {{ article.author.username }} <br/>
+            title: {{ article.title }}<br/>
+            summary: {{ article.summary }} <br/>
+            content:
+            <div id="content"> {{ article.content |markdown|safe}} </div><br/>
+            publish_date: {{ article.publish_date }} <br/>
+            category: {{ article.category}} <br/>
 
-    {% else %}
-        <h2>記事はありません</h2>
-    {% endif %}
+        {% else %}
+            <h2>記事はありません</h2>
+        {% endif %}
+    </div>
 
-    <a href="{% url "article:index" %}">記事一覧</a>
+    <div class="next_pre_article">
+        <div class="next_article">
+            {% if next_article %}
+                 <a href="{% url "article:detail" next_article.id %}">
+                    次の記事<br/>
+                    {{ next_article.title }}
+                 </a>
+            {% endif %}
+        </div>
+
+        <div class="pre_article">
+            {% if pre_article %}
+                <a href="{% url "article:detail" pre_article.id %}">
+                    前の記事<br/>
+                    {{ pre_article.title }}
+                </a>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}
 
 {% block side-content %}

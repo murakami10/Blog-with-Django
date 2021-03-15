@@ -2,3 +2,23 @@
 .editormd-html-preview{
     font-size: 20px;
 }
+
+.next_pre_article{
+    position: relative;
+}
+
+.next_article{
+    position: absolute;
+    left: 0px;
+}
+
+.pre_article{
+    position: absolute;
+    right: 0px;
+}
+
+.detail-main{
+    padding-bottom: 20px;
+    border-bottom: solid 0.5px;
+    margin-bottom: 20px;
+}

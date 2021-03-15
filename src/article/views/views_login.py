@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views import View
 from django.views.generic import DeleteView
 
@@ -73,10 +74,33 @@ class Detail(LoginRequiredMixin, View):
     def get(self, request, article_id):
         user = request.user
         article = get_object_or_404(Article, pk=article_id)
+
+        next_article = (
+            Article.objects.filter(
+                public=1,
+                publish_date__gt=article.publish_date,
+                publish_date__lt=timezone.now(),
+            )
+            .order_by("-publish_date")
+            .last()
+        )
+
+        pre_article = (
+            Article.objects.filter(
+                public=1,
+                publish_date__lt=article.publish_date,
+            )
+            .order_by("-publish_date")
+            .values("id", "title")
+            .first()
+        )
+
         context = {
             "article": article,
             "category": ArticleCategory.objects.all(),
             "user": user,
+            "next_article": next_article,
+            "pre_article": pre_article,
         }
         return render(request, "article/login_detail.html", context)
 

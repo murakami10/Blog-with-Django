@@ -10,7 +10,7 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/article/detail.css' %}">
-    <div style="border-right: solid 1px ;">
+    <div class="detail-main">
         {% if article %}
             author: {{ article.author.username }} <br/>
             title: {{ article.title }}<br/>
@@ -25,8 +25,26 @@
         {% endif %}
     </div>
 
-    <a href="{% url "article:index" %}">記事一覧</a>
+
+    <div class="next_pre_article">
+        <div class="next_article">
+            {% if next_article %}
+                次の記事<br/>
+                {{ next_article.title }}
+            {% endif %}
+        </div>
+
+        <div class="pre_article">
+            {% if pre_article %}
+                <a href="{% url "article:detail" pre_article.id %}">
+                    前の記事<br/>
+                    {{ pre_article.title }}
+                </a>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}
+
 {% block body_end %}
 
 {% endblock %}

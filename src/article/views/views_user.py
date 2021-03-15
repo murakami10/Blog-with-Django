@@ -60,9 +60,31 @@ class DetailView(View):
         if not article.public or article.is_in_future():
             return redirect("article:index")
 
+        next_article = (
+            Article.objects.filter(
+                public=1,
+                publish_date__gt=article.publish_date,
+                publish_date__lt=timezone.now(),
+            )
+            .order_by("-publish_date")
+            .last()
+        )
+
+        pre_article = (
+            Article.objects.filter(
+                public=1,
+                publish_date__lt=article.publish_date,
+            )
+            .order_by("-publish_date")
+            .values("id", "title")
+            .first()
+        )
+
         context = {
             "article": article,
             "category": ArticleCategory.objects.all(),
+            "next_article": next_article,
+            "pre_article": pre_article,
         }
         return render(request, "article/detail.html", context)
 
