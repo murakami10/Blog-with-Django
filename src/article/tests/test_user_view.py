@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from article.models import Article
 from article.models import ArticleCategory
+from article.models import Tag
 
 
 class IndexViewTests(TestCase):
@@ -14,7 +15,9 @@ class IndexViewTests(TestCase):
         self.user = get_user_model().objects.create_superuser(
             email="test@test.com", password="aiueoaiueo"
         )
-        self.category = ArticleCategory.objects.create(category="python")
+        self.category = ArticleCategory.objects.create(name="python")
+        self.tag = Tag.objects.create(name="php")
+
         # 公開記事
         data = {
             "author": self.user,
@@ -26,6 +29,7 @@ class IndexViewTests(TestCase):
             "category": self.category,
         }
         self.article = Article.objects.create(**data)
+        self.article.tag.add(self.tag)
 
         # 非公開記事
         data_not_public = {
@@ -38,6 +42,7 @@ class IndexViewTests(TestCase):
             "category": self.category,
         }
         self.article_not_public = Article.objects.create(**data_not_public)
+        self.article_not_public.tag.add(self.tag)
 
         # 公開予定記事
         data_in_future = {
@@ -50,6 +55,7 @@ class IndexViewTests(TestCase):
             "category": self.category,
         }
         self.article_in_future = Article.objects.create(**data_in_future)
+        self.article_in_future.tag.add(self.tag)
 
     def test_display_article(self):
         response = self.client.get(reverse("article:index"))
@@ -65,7 +71,8 @@ class DetailViewTests(TestCase):
         self.user = get_user_model().objects.create_superuser(
             email="test@test.com", password="aiueoaiueo"
         )
-        self.category = ArticleCategory.objects.create(category="python")
+        self.category = ArticleCategory.objects.create(name="python")
+        self.tag = Tag.objects.create(name="php")
 
         # 公開記事
         data = {
@@ -79,6 +86,7 @@ class DetailViewTests(TestCase):
             "category": self.category,
         }
         self.article = Article.objects.create(**data)
+        self.article.tag.add(self.tag)
 
         # 非公開記事
         data_not_public = {
@@ -92,6 +100,7 @@ class DetailViewTests(TestCase):
             "category": self.category,
         }
         self.article_not_public = Article.objects.create(**data_not_public)
+        self.article_not_public.tag.add(self.tag)
 
         # 公開予定記事
         data_in_future = {
@@ -105,6 +114,7 @@ class DetailViewTests(TestCase):
             "category": self.category,
         }
         self.article_in_future = Article.objects.create(**data_in_future)
+        self.article_in_future.tag.add(self.tag)
 
     def test_access_article_success(self):
         response = self.client.get(reverse("article:detail", kwargs={"article_id": 1}))
@@ -125,7 +135,8 @@ class DetailViewTests(TestCase):
             "public": True,
             "category": self.category,
         }
-        Article.objects.create(**pre_data)
+        pre_article = Article.objects.create(**pre_data)
+        pre_article.tag.add(self.tag)
 
         next_data = {
             "id": 5,
@@ -137,7 +148,8 @@ class DetailViewTests(TestCase):
             "public": True,
             "category": self.category,
         }
-        Article.objects.create(**next_data)
+        next_article = Article.objects.create(**next_data)
+        next_article.tag.add(self.tag)
 
         response = self.client.get(reverse("article:detail", kwargs={"article_id": 1}))
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -178,8 +190,8 @@ class CategoryViewTests(TestCase):
         self.user = get_user_model().objects.create_superuser(
             email="test@test.com", password="aiueoaiueo"
         )
-        self.category1 = ArticleCategory.objects.create(category="python")
-        self.category2 = ArticleCategory.objects.create(category="ruby")
+        self.category1 = ArticleCategory.objects.create(name="python")
+        self.category2 = ArticleCategory.objects.create(name="ruby")
 
         self.article = {}
         self.article_not_public = {}
@@ -212,7 +224,7 @@ class CategoryViewTests(TestCase):
             self.article_not_public[name] = Article.objects.create(**data_not_public)
 
             # 公開予定記事
-            data_not_public = {
+            data_in_future = {
                 "author": self.user,
                 "title": "third python " + name,
                 "summary": "python is soso",
@@ -222,7 +234,7 @@ class CategoryViewTests(TestCase):
                 "category": category,
             }
 
-            self.article_in_future[name] = Article.objects.create(**data_not_public)
+            self.article_in_future[name] = Article.objects.create(**data_in_future)
 
     def test_display_article(self):
         response = self.client.get(

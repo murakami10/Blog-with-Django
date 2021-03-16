@@ -14,6 +14,7 @@ from django.views import View
 from django.views.generic import DeleteView
 
 from article.forms import AddCategoryForm
+from article.forms import AddTagForm
 from article.forms import EditArticleForm
 from article.forms import EmailAuthenticationForm
 from article.forms import PrepareArticleForm
@@ -24,7 +25,7 @@ from article.models import ArticleCategory
 
 class Login(LoginView):
     form_class = EmailAuthenticationForm
-    template_name = "article/login.html"
+    template_name = "article/login/login.html"
 
 
 class Logout(LoginRequiredMixin, LogoutView):
@@ -46,7 +47,7 @@ class Index(LoginRequiredMixin, View):
                 "summary",
                 "publish_date",
                 "public",
-                "category__category",
+                "category__name",
             )
         )
 
@@ -67,7 +68,7 @@ class Index(LoginRequiredMixin, View):
             "pages": pages,
         }
 
-        return render(request, "article/login_index.html", context)
+        return render(request, "article/login/index.html", context)
 
 
 class Detail(LoginRequiredMixin, View):
@@ -82,6 +83,7 @@ class Detail(LoginRequiredMixin, View):
                 publish_date__lt=timezone.now(),
             )
             .order_by("-publish_date")
+            .values("id", "title")
             .last()
         )
 
@@ -102,7 +104,7 @@ class Detail(LoginRequiredMixin, View):
             "next_article": next_article,
             "pre_article": pre_article,
         }
-        return render(request, "article/login_detail.html", context)
+        return render(request, "article/login/detail.html", context)
 
 
 class Edit(LoginRequiredMixin, View):
@@ -116,7 +118,7 @@ class Edit(LoginRequiredMixin, View):
         form = EditArticleForm(instance=article)
         return render(
             request,
-            "article/login_edit.html",
+            "article/login/edit.html",
             {"author": user.username, "form": form},
         )
 
@@ -131,7 +133,7 @@ class Edit(LoginRequiredMixin, View):
         if not form.is_valid():
             return render(
                 request,
-                "article/login_edit.html",
+                "article/login/edit.html",
                 {"author": user.username, "form": form},
             )
 
@@ -143,7 +145,7 @@ class Edit(LoginRequiredMixin, View):
 class Delete(LoginRequiredMixin, DeleteView):
     model = Article
     success_url = reverse_lazy("article:login_index")
-    template_name = "article/login_delete.html"
+    template_name = "article/login/delete.html"
 
     def delete(self, request, *args, **kwargs):
         user = request.user
@@ -164,7 +166,7 @@ class PrepareArticle(LoginRequiredMixin, View):
         form = PrepareArticleForm()
         return render(
             request,
-            "article/prepare_post.html",
+            "article/login/prepare_post.html",
             {"author": user.username, "form": form},
         )
 
@@ -174,14 +176,14 @@ class PrepareArticle(LoginRequiredMixin, View):
         if not form.is_valid():
             return render(
                 request,
-                "article/prepare_post.html",
+                "article/login/prepare_post.html",
                 {"author": user.username, "form": form},
             )
 
         form = PrePostArticleForm.form_with_prapare_article_data(request.POST)
         return render(
             request,
-            "article/prepost_content.html",
+            "article/login/prepost_content.html",
             {"author": user.username, "form": form},
         )
 
@@ -191,7 +193,7 @@ class PostArticle(LoginRequiredMixin, View):
         form = PrePostArticleForm(request.POST)
         is_valid = form.is_valid()
         if not is_valid:
-            return render(request, "article/prepost_content.html", {"form": form})
+            return render(request, "article/login/prepost_content.html", {"form": form})
 
         article = form.save(commit=False)
         article.set_author(request.user)
@@ -200,12 +202,12 @@ class PostArticle(LoginRequiredMixin, View):
         return redirect("article:login_index")
 
 
-class CategoryView(View):
+class CategoryView(LoginRequiredMixin, View):
     def get(self, request, category):
 
         user = request.user
         latest_article_list_filtered_by_category = (
-            Article.objects.filter(category__category=category)
+            Article.objects.filter(category__name=category)
             .order_by("-publish_date")
             .select_related()
             .values(
@@ -214,7 +216,7 @@ class CategoryView(View):
                 "author__username",
                 "summary",
                 "publish_date",
-                "category__category",
+                "category__name",
             )
         )
 
@@ -238,7 +240,7 @@ class CategoryView(View):
             "pages": pages,
         }
 
-        return render(request, "article/login_index.html", context)
+        return render(request, "article/login/index.html", context)
 
 
 class AddCategoryView(LoginRequiredMixin, View):
@@ -246,8 +248,12 @@ class AddCategoryView(LoginRequiredMixin, View):
 
         return render(
             request,
-            "article/add_category.html",
-            {"author": request.user, "form": AddCategoryForm},
+            "article/login/add_tag_category.html",
+            {
+                "author": request.user,
+                "form_category": AddCategoryForm,
+                "form_tag": AddTagForm,
+            },
         )
 
     def post(self, request):
@@ -255,8 +261,26 @@ class AddCategoryView(LoginRequiredMixin, View):
         if not form.is_valid():
             return render(
                 request,
-                "article/add_category.html",
-                {"author": request.user, "form": form},
+                "article/login/add_tag_category.html",
+                {
+                    "author": request.user,
+                    "form_category": form,
+                    "form_tag": AddTagForm,
+                },
+            )
+        form.save()
+        messages.success(request, "カテゴリを追加しました.")
+        return redirect("article:login_index")
+
+
+class AddTagView(LoginRequiredMixin, View):
+    def post(self, request):
+        form = AddTagForm(request.POST)
+        if not form.is_valid():
+            return render(
+                request,
+                "article/login/add_tag_category.html",
+                {"author": request.user, "form_category": form, "form_tag": form},
             )
         form.save()
         messages.success(request, "タグを追加しました.")

@@ -46,7 +46,7 @@ class IndexViewTest(TestCase):
         self.user = get_user_model().objects.create_superuser(
             email="test@test.com", password="aiueoaiueo"
         )
-        self.category = ArticleCategory.objects.create(category="python")
+        self.category = ArticleCategory.objects.create(name="python")
 
     def test_display_public_article_success(self):
         # 公開記事
@@ -131,7 +131,7 @@ class AddArticleViewTest(TestCase):
         self.user = get_user_model().objects.create_superuser(
             email="test@test.com", password="aiueoaiueo"
         )
-        self.category = ArticleCategory.objects.create(category="python")
+        self.category = ArticleCategory.objects.create(name="python")
         self.client.force_login(self.user)
 
     def test_add_article_success(self):
@@ -189,38 +189,50 @@ class AddCategoryViewTest(TestCase):
         self.user = get_user_model().objects.create_superuser(
             email="test@test.com", password="aiueoaiueo"
         )
-        self.category = ArticleCategory.objects.create(category="python")
-        self.client.force_login(self.user)
+        self.category = ArticleCategory.objects.create(name="python")
 
     def test_login_add_category_success(self):
 
+        self.client.force_login(self.user)
         self.assertEqual(ArticleCategory.objects.count(), 1)
         response = self.client.post(
             reverse("article:add_category"),
-            data={"category": "django"},
+            data={"name": "django"},
         )
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         self.assertEqual(response["Location"], reverse("article:login_index"))
-        self.assertTrue(ArticleCategory.objects.filter(category="django").exists())
+        self.assertTrue(ArticleCategory.objects.filter(name="django").exists())
         self.assertEqual(ArticleCategory.objects.count(), 2)
 
     def test_login_add_category_error(self):
+
+        self.client.force_login(self.user)
         response = self.client.post(
             reverse("article:add_category"),
-            data={"category": "python"},
+            data={"name": "python"},
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "そのカテゴリはすでに存在しています.")
+        self.assertContains(response, "すでにそのカテゴリは存在してます.")
 
         response = self.client.post(
             reverse("article:add_category"),
-            data={"category": ""},
+            data={"name": ""},
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "このフィールドは必須です")
+
+    def test_add_category_without_login(self):
+        response = self.client.post(
+            reverse("article:add_category"),
+            data={"name": "django"},
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+
+        self.assertFalse(ArticleCategory.objects.filter(name="django").exists())
 
 
 class DeleteViewTest(TestCase):
@@ -228,7 +240,7 @@ class DeleteViewTest(TestCase):
         self.user = get_user_model().objects.create_superuser(
             email="test@test.com", password="aiueoaiueo"
         )
-        self.category = ArticleCategory.objects.create(category="python")
+        self.category = ArticleCategory.objects.create(name="python")
         data = {
             "author": self.user,
             "title": "first python",
@@ -260,7 +272,7 @@ class EditViewTest(TestCase):
         self.user = get_user_model().objects.create_superuser(
             email="test@test.com", password="aiueoaiueo"
         )
-        self.category = ArticleCategory.objects.create(category="python")
+        self.category = ArticleCategory.objects.create(name="python")
         data = {
             "author": self.user,
             "title": "first python",

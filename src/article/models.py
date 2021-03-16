@@ -12,10 +12,10 @@ class ArticleCategory(models.Model):
     class Meta:
         db_table = "articles_categories"
 
-    category = models.CharField(verbose_name="カテゴリー", max_length=20, unique=True)
+    name = models.CharField(verbose_name="カテゴリー", max_length=20, unique=True)
 
     def __str__(self):
-        return self.category
+        return self.name
 
 
 class User(AbstractUser):
@@ -40,6 +40,16 @@ class User(AbstractUser):
         return self.email
 
 
+class Tag(models.Model):
+    class Meta:
+        db_table = "articles_tags"
+
+    name = models.CharField(verbose_name="タグの名前", max_length=20, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Article(models.Model):
     class Meta:
         db_table = "articles"
@@ -50,7 +60,10 @@ class Article(models.Model):
     content = MDTextField()
     publish_date = models.DateTimeField(verbose_name="投稿日")
     public = models.BooleanField(verbose_name="公開状態", default=0)
-    category = models.ForeignKey(ArticleCategory, on_delete=models.PROTECT)
+    category = models.ForeignKey(
+        ArticleCategory, verbose_name="カテゴリ", on_delete=models.PROTECT
+    )
+    tag = models.ManyToManyField(Tag, verbose_name="タグ")
 
     def set_author(self, user: User):
         self.author_id = user.id

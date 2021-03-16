@@ -1,8 +1,12 @@
-{% extends "base.html" %}
+
+{% extends "article/login/base.html" %}
 {% load static %}
 {% load markdown_extras %}
 
-{% block page_title %}記事一覧{% endblock %}
+
+{% block page_title %}記事の詳細{% endblock %}
+{% block addtional_css %}
+{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/article/detail.css' %}">
@@ -12,22 +16,27 @@
             title: {{ article.title }}<br/>
             summary: {{ article.summary }} <br/>
             content:
-            <div id="content"> {{ article.content |markdown|safe}} </div><br/>
+            <div id="content">{{ article.content |markdown|safe}} </div><br/>
             publish_date: {{ article.publish_date }} <br/>
-            category: {{ article.category}} <br/>
+            category: {{ article.category.name }} <br/>
+            tag :
+            {% for tag in article.tag.all %}
+                {{ tag }}
+            {% empty %}
+                なし
+            {% endfor %}
 
         {% else %}
             <h2>記事はありません</h2>
         {% endif %}
     </div>
 
+
     <div class="next_pre_article">
         <div class="next_article">
             {% if next_article %}
-                 <a href="{% url "article:detail" next_article.id %}">
-                    次の記事<br/>
-                    {{ next_article.title }}
-                 </a>
+                次の記事<br/>
+                {{ next_article.title }}
             {% endif %}
         </div>
 
@@ -42,12 +51,16 @@
     </div>
 {% endblock %}
 
+{% block body_end %}
+
+{% endblock %}
+
 {% block side-content %}
     <div id="side_category">
         <h4>Category</h4>
         <ul class="list-group list-group-flush">
             {% for c in category %}
-                <li class="list-group-item"><a href="{% url "article:category"  c.category%}">{{ c.category }}</a></li>
+                <li class="list-group-item"><a href="{% url "article:category"  c.name%}">{{ c.name }}</a></li>
 
             {% endfor %}
         </ul>

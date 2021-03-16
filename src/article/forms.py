@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from .models import Article
 from .models import ArticleCategory
+from .models import Tag
 
 UserModel = get_user_model()
 
@@ -79,11 +80,22 @@ class PrePostArticleForm(forms.ModelForm):
             "publish_date": "投稿予定日",
             "category": "カテゴリー",
         }
-        widgets = {"summary": forms.Textarea(attrs={"cols": 50})}
+
+        widgets = {
+            "summary": forms.Textarea(attrs={"cols": 50}),
+            "tag": forms.CheckboxSelectMultiple,
+        }
 
     public = forms.BooleanField(
         label="記事を公開",
         initial=False,
+        required=False,
+    )
+
+    tag = forms.ModelMultipleChoiceField(
+        label="タグ",
+        widget=forms.CheckboxSelectMultiple,
+        queryset=Tag.objects.all(),
         required=False,
     )
 
@@ -132,6 +144,13 @@ class PrepareArticleForm(forms.Form):
         label="カテゴリー", queryset=ArticleCategory.objects.all()
     )
 
+    tag = forms.ModelMultipleChoiceField(
+        label="タグ",
+        widget=forms.CheckboxSelectMultiple,
+        queryset=Tag.objects.all(),
+        required=False,
+    )
+
     error_messages = {"future_date": "過去の日付になっています."}
 
     def clean_publish_date(self):
@@ -159,10 +178,19 @@ class EditArticleForm(forms.ModelForm):
             "publish_date": "投稿予定日",
             "category": "カテゴリー",
         }
-        widgets = {"summary": forms.Textarea(attrs={"cols": 50})}
+        widgets = {
+            "summary": forms.Textarea(attrs={"cols": 50}),
+        }
 
     public = forms.BooleanField(
         label="記事を公開",
+        required=False,
+    )
+
+    tag = forms.ModelMultipleChoiceField(
+        label="タグ",
+        widget=forms.CheckboxSelectMultiple,
+        queryset=Tag.objects.all(),
         required=False,
     )
 
@@ -172,18 +200,22 @@ class AddCategoryForm(forms.ModelForm):
         model = ArticleCategory
         fields = "__all__"
         labels = {
-            "category": "category",
+            "name": "カテゴリ",
         }
 
-    error_message = {
-        "exited_category": "そのカテゴリはすでに存在しています.",
-    }
+        error_messages = {
+            "name": {"unique": "すでにそのカテゴリは存在してます."},
+        }
 
-    def clean_category(self):
-        category = self.cleaned_data.get("category")
-        if ArticleCategory.objects.filter(category=category).exists():
-            raise forms.ValidationError(
-                self.error_message["exited_category"],
-                code="exited_category",
-            )
-        return category
+
+class AddTagForm(forms.ModelForm):
+    class Meta:
+        model = Tag
+        fields = "__all__"
+        labels = {
+            "name": "タグ",
+        }
+
+        error_messages = {
+            "name": {"unique": "すでにそのタグは存在してます."},
+        }

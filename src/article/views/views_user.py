@@ -27,7 +27,8 @@ class IndexView(View):
                 "author__username",
                 "summary",
                 "publish_date",
-                "category__category",
+                "category__name",
+                "tag",
             )
         )
 
@@ -47,13 +48,13 @@ class IndexView(View):
             "pages": pages,
         }
 
-        return render(request, "article/index.html", context)
+        return render(request, "article/user/index.html", context)
 
 
 class DetailView(View):
     def get(self, request, article_id):
         if request.user.is_authenticated:
-            return redirect("article:login_detail")
+            return redirect("article:login_detail", article_id=article_id)
         article = get_object_or_404(Article, pk=article_id)
 
         # 非公開, 未公開の記事にアクセス
@@ -86,13 +87,13 @@ class DetailView(View):
             "next_article": next_article,
             "pre_article": pre_article,
         }
-        return render(request, "article/detail.html", context)
+        return render(request, "article/user/detail.html", context)
 
 
 class CategoryView(View):
     def get(self, request, category):
         latest_article_list_filtered_by_category = (
-            Article.objects.filter(category__category=category)
+            Article.objects.filter(category__name=category)
             .order_by("-publish_date")
             .filter(public=1, publish_date__lte=timezone.now())
             .select_related()
@@ -102,7 +103,7 @@ class CategoryView(View):
                 "author__username",
                 "summary",
                 "publish_date",
-                "category__category",
+                "category__name",
             )
         )
 
@@ -125,4 +126,4 @@ class CategoryView(View):
             "pages": pages,
         }
 
-        return render(request, "article/index.html", context)
+        return render(request, "article/user/index.html", context)

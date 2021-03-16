@@ -1,4 +1,4 @@
-{% extends "article/login_base.html" %}
+{% extends "article/login/base.html" %}
 
 
 {% load static %}
@@ -9,11 +9,11 @@
 
     <div class="cn_fl">
     <link rel="stylesheet" href="{% static 'css/article/post.css' %}">
-         <form method="post" >
+         <form action="{% url "article:post"%}" method="post" >
              {% csrf_token %}
              {{ form.media }}
              {{ form.as_p }}
-             <button class="btn btn-success" type="submit">更新する</button>
+             <button class="btn btn-success" type="submit">投稿する</button>
          </form>
     </div>
 

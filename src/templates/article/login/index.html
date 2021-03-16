@@ -1,4 +1,4 @@
-{% extends "article/login_base.html" %}
+{% extends "article/login/base.html" %}
 {% load static %}
 {% load calc_date %}
 {% block page_title %}記事一覧{% endblock %}
@@ -55,7 +55,7 @@
                     author: {{ article.author__username }} <br/>
                     summary: {{ article.summary }} <br/>
                     publish_date: {{ article.publish_date }} <br/>
-                    category: {{ article.category__category }} <br/>
+                    category: {{ article.category__name }} <br/>
                 </div>
             </div>
         {% empty %}
@@ -72,7 +72,7 @@
         <h4>Category</h4>
         <ul class="list-group list-group-flush">
             {% for c in category %}
-                <li class="list-group-item"><a href="{% url "article:category"  c.category%}">{{ c.category }}</a></li>
+                <li class="list-group-item"><a href="{% url "article:login_category"  c.name%}">{{ c.name }}</a></li>
 
             {% endfor %}
         </ul>

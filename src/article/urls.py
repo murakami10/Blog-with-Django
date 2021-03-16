@@ -35,7 +35,15 @@ urlpatterns = [
         name="login_delete",
     ),
     path(
-        "login/add-article/", views_login.AddCategoryView.as_view(), name="add_category"
+        "login/add-category/",
+        views_login.AddCategoryView.as_view(),
+        name="add_category",
+    ),
+    path("login/add-tag/", views_login.AddTagView.as_view(), name="add_tag"),
+    path(
+        "login/index/categories/<str:category>/",
+        views_login.CategoryView.as_view(),
+        name="login_category",
     ),
     url(r"mdeditor/", include("mdeditor.urls")),
 ]

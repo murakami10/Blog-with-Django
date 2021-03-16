@@ -2,15 +2,17 @@ from django.test import TestCase
 from django.utils import timezone
 
 from article.forms import AddCategoryForm
+from article.forms import AddTagForm
 from article.forms import PrepareArticleForm
 from article.forms import PrePostArticleForm
 from article.models import Article
 from article.models import ArticleCategory
+from article.models import Tag
 
 
 class PrepareArticleFormTest(TestCase):
     def setUp(self) -> None:
-        self.category = ArticleCategory.objects.create(category="python")
+        self.category = ArticleCategory.objects.create(name="python")
 
     def test_valid_form(self):
         data = {
@@ -52,29 +54,45 @@ class PrepareArticleFormTest(TestCase):
 
 class AddCategoryFormTest(TestCase):
     def setUp(self) -> None:
-        data = {"category": "python"}
+        data = {"name": "python"}
         ArticleCategory.objects.create(**data)
 
     def test_add_category_form_success(self):
-        data = {"category": "django"}
+        data = {"name": "django"}
         form = AddCategoryForm(data)
         self.assertTrue(form.is_valid())
 
     def test_add_category_form_error(self):
-        data = {"category": ""}
+        data = {"name": ""}
         form = AddCategoryForm(data)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors["category"][0], "このフィールドは必須です。")
+        self.assertEqual(form.errors["name"][0], "このフィールドは必須です。")
 
-        data = {"category": "python"}
+        data = {"name": "python"}
         form = AddCategoryForm(data)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors["category"][0], "そのカテゴリはすでに存在しています.")
+
+
+class AddTagFormTest(TestCase):
+    def setUp(self) -> None:
+        data = {"name": "python"}
+        self.tag = Tag.objects.create(**data)
+
+    def test_valid_form(self):
+        data = {"name": "php"}
+        form = AddTagForm(data)
+        self.assertTrue(form.is_valid())
+
+    def test_valid_not_unique_name(self):
+        data = {"name": "python"}
+        form = AddTagForm(data)
+        self.assertFalse(form.is_valid())
 
 
 class PrePostArticleFormTest(TestCase):
     def setUp(self) -> None:
-        self.category = ArticleCategory.objects.create(category="python")
+        self.category = ArticleCategory.objects.create(name="python")
+        self.tag = Tag.objects.create(name="php")
 
     def test_valid_form(self):
         data = {
@@ -83,6 +101,7 @@ class PrePostArticleFormTest(TestCase):
             "content": "python is good language",
             "publish_date": timezone.now() + timezone.timedelta(days=1),
             "category": self.category,
+            "tag": [self.tag.id],
         }
 
         form = PrePostArticleForm(data)

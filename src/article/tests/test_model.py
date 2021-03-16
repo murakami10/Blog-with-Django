@@ -5,31 +5,28 @@ from django.utils import timezone
 
 from article.models import Article
 from article.models import ArticleCategory
+from article.models import Tag
 
 
 class ArticleCategoryTest(TestCase):
     def setUp(self) -> None:
-        self.category = ArticleCategory.objects.create(category="python")
-
-    def test_create_category(self):
-        self.assertEqual(self.category.category, "python")
-        self.assertNotEqual(self.category.category, "Python")
-        self.assertNotEqual(self.category.category, " python")
+        self.category = ArticleCategory.objects.create(name="python")
 
     def test_make_same_category(self):
         with self.assertRaises(utils.IntegrityError):
-            ArticleCategory.objects.create(category="python")
+            ArticleCategory.objects.create(name="python")
 
     def test_category_length_is_over(self):
         with self.assertRaises(utils.DataError):
             ArticleCategory.objects.create(
-                category="aiueoaiueoaiueoaiueoa",
+                name="aiueoaiueoaiueoaiueoa",
             )
 
 
 class ArticleTest(TestCase):
     def setUp(self) -> None:
-        self.c = ArticleCategory.objects.create(category="python")
+        self.c = ArticleCategory.objects.create(name="python")
+        self.t = Tag.objects.create(name="php")
         user = get_user_model()
         self.u = user.objects.create_user(email="test@test.com", password="test")
         self.u2 = user.objects.create_user(email="test2@test2.com", password="test2")
@@ -43,6 +40,7 @@ class ArticleTest(TestCase):
             public=True,
             category=self.c,
         )
+        self.article.tag.add(self.t)
 
         self.article_future = Article.objects.create(
             author=self.u,
@@ -53,6 +51,7 @@ class ArticleTest(TestCase):
             public=True,
             category=self.c,
         )
+        self.article_future.tag.add(self.t)
 
     def test_create_article(self):
 
@@ -60,7 +59,7 @@ class ArticleTest(TestCase):
         self.assertEqual(self.article.title, "python tour")
         self.assertEqual(self.article.summary, "python is good")
         self.assertEqual(self.article.content, "python is good lang")
-        self.assertEqual(self.article.category.category, self.c.category)
+        self.assertEqual(self.article.category.name, self.c.name)
 
     def test_title_length_is_over(self):
 

@@ -1,0 +1,57 @@
+{% extends "article/login/base.html" %}
+
+
+{% load static %}
+
+
+
+{% block page_title %}カテゴリー追加{% endblock %}
+
+
+{% block content %}
+
+    <div class="cn_fl">
+    <h3>カテゴリーを追加</h3>
+    <link rel="stylesheet" href="{% static 'css/article/post.css' %}">
+         <form method="post" >
+             {% csrf_token %}
+             {% if form_category.errors %}
+                   {% for field in form_category %}
+                        {% for error in field.errors %}
+                             <div class="alert alert-danger">
+                                 <strong>{{ error }}</strong>
+                             </div>
+                        {% endfor %}
+                   {% endfor %}
+            {% endif %}
+
+            {{ form_category.name.label }}:{{ form_category.name }}
+            <button class="btn btn-success" type="submit">categoryを追加</button>
+         </form>
+    </div>
+    <br/>
+
+    <div class="cn_fl">
+    <h3>タグを追加</h3>
+    <link rel="stylesheet" href="{% static 'css/article/post.css' %}">
+         <form action={% url "article:add_tag"  %} method="post" >
+             {% csrf_token %}
+             {% if form_tag.errors %}
+                   {% for field in form_tag %}
+                        {% for error in field.errors %}
+                             <div class="alert alert-danger">
+                                 <strong>{{ error }}</strong>
+                             </div>
+                        {% endfor %}
+                   {% endfor %}
+            {% endif %}
+
+            {{ form_tag.name.label }}:{{ form_tag.name }}
+            <button class="btn btn-success" type="submit">tagを追加</button>
+         </form>
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+{% endblock %}
