@@ -21,6 +21,7 @@ from article.forms import PrepareArticleForm
 from article.forms import PrePostArticleForm
 from article.models import Article
 from article.models import ArticleCategory
+from article.models import Tag
 
 
 class Login(LoginView):
@@ -38,17 +39,8 @@ class Index(LoginRequiredMixin, View):
 
         latest_article_list = (
             Article.objects.order_by("-publish_date")
+            .prefetch_related("tag")
             .select_related()
-            .values(
-                "id",
-                "title",
-                "author_id",
-                "author__username",
-                "summary",
-                "publish_date",
-                "public",
-                "category__name",
-            )
         )
 
         # ページ機能
@@ -64,6 +56,7 @@ class Index(LoginRequiredMixin, View):
 
         context = {
             "category": ArticleCategory.objects.all(),
+            "tag": Tag.objects.all(),
             "user": user,
             "pages": pages,
         }
@@ -100,6 +93,7 @@ class Detail(LoginRequiredMixin, View):
         context = {
             "article": article,
             "category": ArticleCategory.objects.all(),
+            "tag": Tag.objects.all(),
             "user": user,
             "next_article": next_article,
             "pre_article": pre_article,
@@ -209,15 +203,8 @@ class CategoryView(LoginRequiredMixin, View):
         latest_article_list_filtered_by_category = (
             Article.objects.filter(category__name=category)
             .order_by("-publish_date")
+            .prefetch_related("tag")
             .select_related()
-            .values(
-                "id",
-                "title",
-                "author__username",
-                "summary",
-                "publish_date",
-                "category__name",
-            )
         )
 
         # ページ機能
@@ -235,7 +222,41 @@ class CategoryView(LoginRequiredMixin, View):
 
         context = {
             "category": ArticleCategory.objects.all(),
+            "tag": Tag.objects.all(),
             "filter_category": category,
+            "user": user,
+            "pages": pages,
+        }
+
+        return render(request, "article/login/index.html", context)
+
+
+class TagView(LoginRequiredMixin, View):
+    def get(self, request, tag):
+
+        user = request.user
+        latest_article_list_filtered_with_tag = (
+            Article.objects.filter(tag__name=tag)
+            .order_by("-publish_date")
+            .prefetch_related("tag")
+            .select_related()
+        )
+
+        # ページ機能
+        page = request.GET.get("page", 1)
+
+        article_per_page = 5
+        paginator = Paginator(latest_article_list_filtered_with_tag, article_per_page)
+
+        try:
+            pages = paginator.page(page)
+        except (PageNotAnInteger, EmptyPage):
+            pages = paginator.page(1)
+
+        context = {
+            "category": ArticleCategory.objects.all(),
+            "tag": Tag.objects.all(),
+            "filter_tag": tag,
             "user": user,
             "pages": pages,
         }
@@ -253,6 +274,8 @@ class AddCategoryView(LoginRequiredMixin, View):
                 "author": request.user,
                 "form_category": AddCategoryForm,
                 "form_tag": AddTagForm,
+                "category": ArticleCategory.objects.all(),
+                "tag": Tag.objects.all(),
             },
         )
 
@@ -266,6 +289,8 @@ class AddCategoryView(LoginRequiredMixin, View):
                     "author": request.user,
                     "form_category": form,
                     "form_tag": AddTagForm,
+                    "category": ArticleCategory.objects.all(),
+                    "tag": Tag.objects.all(),
                 },
             )
         form.save()

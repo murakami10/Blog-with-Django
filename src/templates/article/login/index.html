@@ -15,10 +15,15 @@
 {% endif %}
     <div id="main_card">
         {% if filter_category %}
-            <div style="text-align: center;padding-bottom: 10px;">
-                <h3>{{ filter_category }}カテゴリを選択</h3>
-            </div>
-        {% endif %}
+           <div style="text-align: center;padding-bottom: 10px;">
+               <h3>{{ filter_category }}カテゴリを選択</h3>
+           </div>
+       {% elif filter_tag %}
+           <div style="text-align: center;padding-bottom: 10px;">
+               <h3>{{ filter_tag }}タグを選択</h3>
+           </div>
+       {% endif %}
+
 
         {% for article in pages %}
             <div class="card relative">
@@ -52,10 +57,16 @@
                     {% endif %}
                 </div>
                 <div class="card-body">
-                    author: {{ article.author__username }} <br/>
+                    author: {{ article.author.username }} <br/>
                     summary: {{ article.summary }} <br/>
                     publish_date: {{ article.publish_date }} <br/>
-                    category: {{ article.category__name }} <br/>
+                    category: {{ article.category }} <br/>
+                    tag:
+                    {% for t in article.tag.all %}
+                        {{ t }}
+                    {% empty %}
+                        なし
+                    {% endfor %}
                 </div>
             </div>
         {% empty %}
@@ -68,13 +79,5 @@
 {% endblock %}
 
 {% block side-content %}
-    <div id="side_category">
-        <h4>Category</h4>
-        <ul class="list-group list-group-flush">
-            {% for c in category %}
-                <li class="list-group-item"><a href="{% url "article:login_category"  c.name%}">{{ c.name }}</a></li>
-
-            {% endfor %}
-        </ul>
-    </div>
+    {% include "article/include/side_bar.html" %}
 {% endblock %}

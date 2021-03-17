@@ -25,7 +25,7 @@
                    {% endfor %}
             {% endif %}
 
-            {{ form_category.name.label }}:{{ form_category.name }}
+            {{ form_category.name.label }}:&nbsp;{{ form_category.name }}
             <button class="btn btn-success" type="submit">categoryを追加</button>
          </form>
     </div>
@@ -46,7 +46,7 @@
                    {% endfor %}
             {% endif %}
 
-            {{ form_tag.name.label }}:{{ form_tag.name }}
+            {{ form_tag.name.label }}: &nbsp;{{ form_tag.name }}
             <button class="btn btn-success" type="submit">tagを追加</button>
          </form>
     </div>
@@ -54,4 +54,8 @@
 {% endblock %}
 
 {% block javascript %}
+{% endblock %}
+
+{% block side-content %}
+    {% include "article/include/side_bar.html" %}
 {% endblock %}

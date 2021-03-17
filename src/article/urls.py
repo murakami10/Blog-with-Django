@@ -14,6 +14,11 @@ urlpatterns = [
         views_user.CategoryView.as_view(),
         name="category",
     ),
+    path(
+        "index/tags/<str:tag>/",
+        views_user.TagView.as_view(),
+        name="tag",
+    ),
     path("prepare/", views_login.PrepareArticle.as_view(), name="prepare_post"),
     path("post/", views_login.PostArticle.as_view(), name="post"),
     path("login/", views_login.Login.as_view(), name="login"),
@@ -44,6 +49,11 @@ urlpatterns = [
         "login/index/categories/<str:category>/",
         views_login.CategoryView.as_view(),
         name="login_category",
+    ),
+    path(
+        "login/index/tag/<str:tag>/",
+        views_login.TagView.as_view(),
+        name="login_tag",
     ),
     url(r"mdeditor/", include("mdeditor.urls")),
 ]

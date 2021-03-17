@@ -242,6 +242,7 @@ class CategoryViewTests(TestCase):
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "pythonカテゴリを選択")
         self.assertContains(response, "first python c1")
         self.assertNotContains(response, "second python c1")
         self.assertNotContains(response, "third python c1")
@@ -260,5 +261,88 @@ class CategoryViewTests(TestCase):
         self.assertNotContains(response, "third python c1")
 
         self.assertContains(response, "first python c2")
+        self.assertContains(response, "rubyカテゴリを選択")
         self.assertNotContains(response, "second python c2")
         self.assertNotContains(response, "third python c2")
+
+
+class TagViewTests(TestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_superuser(
+            email="test@test.com", password="aiueoaiueo"
+        )
+        self.category = ArticleCategory.objects.create(name="program")
+
+        self.tag1 = Tag.objects.create(name="python")
+        self.tag2 = Tag.objects.create(name="ruby")
+
+        self.article = {}
+        self.article_not_public = {}
+        self.article_in_future = {}
+
+        for name, tag in zip(["t1", "t2"], [self.tag1, self.tag2]):
+
+            # 公開記事
+            data = {
+                "author": self.user,
+                "title": "first python " + name,
+                "summary": "python is good",
+                "content": "python is good language",
+                "publish_date": timezone.now() + timezone.timedelta(days=-1),
+                "public": True,
+                "category": self.category,
+            }
+            self.article[name] = Article.objects.create(**data)
+            self.article[name].tag.add(tag)
+
+            # 非公開記事
+            data_not_public = {
+                "author": self.user,
+                "title": "second python " + name,
+                "summary": "python is bad",
+                "content": "python is bad language",
+                "publish_date": timezone.now() + timezone.timedelta(days=-1),
+                "public": False,
+                "category": self.category,
+            }
+            self.article_not_public[name] = Article.objects.create(**data_not_public)
+            self.article_not_public[name].tag.add(tag)
+
+            # 公開予定記事
+            data_in_future = {
+                "author": self.user,
+                "title": "third python " + name,
+                "summary": "python is soso",
+                "content": "python is normal language",
+                "publish_date": timezone.now() + timezone.timedelta(days=1),
+                "public": True,
+                "category": self.category,
+            }
+
+            self.article_in_future[name] = Article.objects.create(**data_in_future)
+            self.article_in_future[name].tag.add(tag)
+
+    def test_display_article(self):
+        response = self.client.get(reverse("article:tag", kwargs={"tag": "python"}))
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "pythonタグを選択")
+        self.assertContains(response, "first python t1")
+        self.assertNotContains(response, "second python t1")
+        self.assertNotContains(response, "third python t1")
+
+        self.assertNotContains(response, "first python t2")
+        self.assertNotContains(response, "second python t2")
+        self.assertNotContains(response, "third python t2")
+
+        response = self.client.get(reverse("article:tag", kwargs={"tag": "ruby"}))
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertNotContains(response, "first python t1")
+        self.assertNotContains(response, "second python t1")
+        self.assertNotContains(response, "third python t1")
+
+        self.assertContains(response, "first python t2")
+        self.assertContains(response, "rubyタグを選択")
+        self.assertNotContains(response, "second python t2")
+        self.assertNotContains(response, "third python t2")

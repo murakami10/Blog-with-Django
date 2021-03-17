@@ -9,6 +9,7 @@ from django.views import View
 
 from article.models import Article
 from article.models import ArticleCategory
+from article.models import Tag
 
 
 class IndexView(View):
@@ -20,16 +21,8 @@ class IndexView(View):
         latest_article_list = (
             Article.objects.order_by("-publish_date")
             .filter(public=1, publish_date__lte=timezone.now())
+            .prefetch_related("tag")
             .select_related()
-            .values(
-                "id",
-                "title",
-                "author__username",
-                "summary",
-                "publish_date",
-                "category__name",
-                "tag",
-            )
         )
 
         # ページ機能
@@ -45,6 +38,7 @@ class IndexView(View):
 
         context = {
             "category": ArticleCategory.objects.all(),
+            "tag": Tag.objects.all(),
             "pages": pages,
         }
 
@@ -68,6 +62,7 @@ class DetailView(View):
                 publish_date__lt=timezone.now(),
             )
             .order_by("-publish_date")
+            .values("id", "title")
             .last()
         )
 
@@ -84,6 +79,7 @@ class DetailView(View):
         context = {
             "article": article,
             "category": ArticleCategory.objects.all(),
+            "tag": Tag.objects.all(),
             "next_article": next_article,
             "pre_article": pre_article,
         }
@@ -92,19 +88,16 @@ class DetailView(View):
 
 class CategoryView(View):
     def get(self, request, category):
+
+        if request.user.is_authenticated:
+            return redirect("article:login_index")
+
         latest_article_list_filtered_by_category = (
             Article.objects.filter(category__name=category)
             .order_by("-publish_date")
             .filter(public=1, publish_date__lte=timezone.now())
+            .prefetch_related("tag")
             .select_related()
-            .values(
-                "id",
-                "title",
-                "author__username",
-                "summary",
-                "publish_date",
-                "category__name",
-            )
         )
 
         # ページ機能
@@ -122,7 +115,43 @@ class CategoryView(View):
 
         context = {
             "category": ArticleCategory.objects.all(),
+            "tag": Tag.objects.all(),
             "filter_category": category,
+            "pages": pages,
+        }
+
+        return render(request, "article/user/index.html", context)
+
+
+class TagView(View):
+    def get(self, request, tag):
+
+        if request.user.is_authenticated:
+            return redirect("article:login_index")
+
+        latest_article_list_filtered_by_tag = (
+            Article.objects.filter(tag__name=tag)
+            .order_by("-publish_date")
+            .filter(public=1, publish_date__lte=timezone.now())
+            .select_related()
+            .prefetch_related("tag")
+        )
+
+        # ページ機能
+        page = request.GET.get("page", 1)
+
+        article_per_page = 5
+        paginator = Paginator(latest_article_list_filtered_by_tag, article_per_page)
+
+        try:
+            pages = paginator.page(page)
+        except (PageNotAnInteger, EmptyPage):
+            pages = paginator.page(1)
+
+        context = {
+            "category": ArticleCategory.objects.all(),
+            "tag": Tag.objects.all(),
+            "filter_tag": tag,
             "pages": pages,
         }
 
