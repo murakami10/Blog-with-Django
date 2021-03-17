@@ -8,16 +8,15 @@
 <link rel="stylesheet" href="{% static 'css/article/detail.css' %}">
     <div class="detail-main">
         {% if article %}
-            author: {{ article.author.username }} <br/>
-            title: {{ article.title }}<br/>
-            summary: {{ article.summary }} <br/>
-            content:
+{#            author: {{ article.author.username }} <br/>#}
+            <h1>{{ article.title }}</h1><br/>
             <div id="content"> {{ article.content |markdown|safe}} </div><br/>
-            publish_date: {{ article.publish_date }} <br/>
-            category: {{ article.category}} <br/>
-            tag :
+            {{ article.publish_date }} <br/>
+            Category:
+            <a href="{% url "article:category" article.category %}" class="badge badge-primary">{{ article.category }}</a> <br/>
+            Tag :
             {% for tag in article.tag.all %}
-                {{ tag }}
+                <a href="{% url "article:tag" tag %}" class="badge badge-secondary">#{{ tag }}</a>
             {% empty %}
                 なし
             {% endfor %}

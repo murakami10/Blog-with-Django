@@ -25,17 +25,18 @@
            <div class="card">
                <a href="{% url "article:detail" article.id %}">
                    <div class="card-header">
-                       <p class="h1">title:{{ article.title }}</p>
+                       <p class="h1">{{ article.title }}</p>
                    </div>
                </a>
                <div class="card-body">
-                   author: {{ article.author.username }} <br/>
-                   summary: {{ article.summary }} <br/>
-                   publish_date: {{ article.publish_date }} <br/>
-                   category: {{ article.category }} <br/>
-                   tag:
+{#                   author: {{ article.author.username }} <br/>#}
+                   {{ article.summary }} <br/><br/>
+                   {{ article.publish_date }} <br/>
+                   Category:
+                   <a href="{% url "article:category" article.category %}" class="badge badge-primary">{{ article.category }}</a> <br/>
+                   Tag:
                    {% for t in article.tag.all %}
-                       {{ t }}
+                       <a href="{% url "article:tag" t %}" class="badge badge-secondary">#{{ t }}</a>
                    {% empty %}
                        なし
                    {% endfor %}

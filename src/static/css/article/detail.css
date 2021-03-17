@@ -9,16 +9,19 @@
 
 .next_article{
     position: absolute;
-    left: 0px;
+    left: 30px;
 }
 
 .pre_article{
     position: absolute;
-    right: 0px;
+    right: 30px;
 }
 
 .detail-main{
     padding-bottom: 20px;
+    padding-right: 30px;
+    padding-left: 30px;
+    padding-top: 50px;
     border-bottom: solid 0.5px;
     margin-bottom: 20px;
 }

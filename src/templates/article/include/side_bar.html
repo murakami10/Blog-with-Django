@@ -16,7 +16,7 @@
     <ul class="list-group list-group-flush">
         {% if user %}
             {% for t in tag %}
-                <li class="list-group-item"><a href="{% url "article:login_tag"  t.name%}">{{ t.name}}</a></li>
+                <li class="list-group-item"><a href="{% url "article:login_tag"  t.name%}" style="color: #4e555b;">#{{ t.name}}</a></li>
             {% endfor %}
         {% else %}
             {% for t in tag %}
