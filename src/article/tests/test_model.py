@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.db import utils
 from django.test import TestCase
 from django.utils import timezone
 
@@ -8,88 +7,73 @@ from article.models import ArticleCategory
 from article.models import Tag
 
 
-class ArticleCategoryTest(TestCase):
+class ArticleCategoryTests(TestCase):
+    pass
+
+
+class TagTests(TestCase):
+    pass
+
+
+class ArticleTests(TestCase):
     def setUp(self) -> None:
-        self.category = ArticleCategory.objects.create(name="python")
-
-    def test_make_same_category(self):
-        with self.assertRaises(utils.IntegrityError):
-            ArticleCategory.objects.create(name="python")
-
-    def test_category_length_is_over(self):
-        with self.assertRaises(utils.DataError):
-            ArticleCategory.objects.create(
-                name="aiueoaiueoaiueoaiueoa",
-            )
-
-
-class ArticleTest(TestCase):
-    def setUp(self) -> None:
-        self.c = ArticleCategory.objects.create(name="python")
-        self.t = Tag.objects.create(name="php")
         user = get_user_model()
         self.u = user.objects.create_user(email="test@test.com", password="test")
-        self.u2 = user.objects.create_user(email="test2@test2.com", password="test2")
+        self.u2 = user.objects.create_user(email="test2@test.com", password="test2")
 
-        self.article = Article.objects.create(
-            author=self.u,
-            title="python tour",
-            summary="python is good",
-            content="python is good lang",
-            publish_date=timezone.now() + timezone.timedelta(days=-1),
-            public=True,
-            category=self.c,
-        )
-        self.article.tag.add(self.t)
+        self.c = ArticleCategory.objects.create(name="python")
+        self.t = Tag.objects.create(name="php")
 
-        self.article_future = Article.objects.create(
+    def test_article_is_in_future(self):
+
+        article = dict()
+        keys = ["yesterday", "tomorrow", "ten_minutes"]
+
+        for key, time in zip(keys, [{"days": -1}, {"days": 1}, {"minutes": 10}]):
+            article[key] = Article.objects.create(
+                author=self.u,
+                title="python tour " + key,
+                summary="python is good " + key,
+                content="python is good lang " + key,
+                publish_date=timezone.now() + timezone.timedelta(**time),
+                public=True,
+                category=self.c,
+            )
+            article[key].tag.add(self.t)
+
+        keys = ["yesterday", "tomorrow", "ten_minutes"]
+        self.assertFalse(article[keys[0]].is_in_future())
+        self.assertTrue(article[keys[1]].is_in_future())
+        self.assertTrue(article[keys[2]].is_in_future())
+
+    def test_set_author(self):
+        article = Article.objects.create(
             author=self.u,
-            title="python tour",
-            summary="python is good",
-            content="python is good lang",
+            title="python tour ",
+            summary="python is good ",
+            content="python is good lang ",
             publish_date=timezone.now() + timezone.timedelta(days=1),
             public=True,
             category=self.c,
         )
-        self.article_future.tag.add(self.t)
+        article.tag.add(self.t)
 
-    def test_create_article(self):
+        self.assertEqual(article.author, self.u)
+        article.set_author(self.u2)
+        self.assertEqual(article.author, self.u2)
 
-        self.assertEqual(self.article.author.email, self.u.email)
-        self.assertEqual(self.article.title, "python tour")
-        self.assertEqual(self.article.summary, "python is good")
-        self.assertEqual(self.article.content, "python is good lang")
-        self.assertEqual(self.article.category.name, self.c.name)
+    def test_publish_article(self):
+        article = Article.objects.create(
+            author=self.u,
+            title="python tour ",
+            summary="python is good ",
+            content="python is good lang ",
+            publish_date=timezone.now() + timezone.timedelta(days=1),
+            public=False,
+            category=self.c,
+        )
+        article.tag.add(self.t)
 
-    def test_title_length_is_over(self):
-
-        with self.assertRaises(utils.DataError):
-            Article.objects.create(
-                author=self.u,
-                title="p" * 256,
-                summary="python is good",
-                content="python is good lang",
-                publish_date=timezone.now(),
-                category=self.c,
-            )
-
-    def test_summary_length_is_over(self):
-
-        with self.assertRaises(utils.DataError):
-            Article.objects.create(
-                author=self.u,
-                title="p",
-                summary="p" * 256,
-                content="python is good lang",
-                publish_date=timezone.now(),
-                category=self.c,
-            )
-
-    def test_article_is_in_future(self):
-        self.assertFalse(self.article.is_in_future())
-        self.assertTrue(self.article_future.is_in_future())
-
-    def test_set_author(self):
-        self.assertEqual(self.article.author, self.u)
-        self.article.set_author(self.u2)
-        self.assertEqual(self.article.author, self.u2)
+        self.assertFalse(article.public)
+        article.publish_article()
+        self.assertTrue(article.public)

@@ -1,7 +1,6 @@
 from django.contrib import messages
+from django.contrib.auth import views
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView
-from django.contrib.auth.views import LogoutView
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
 from django.core.paginator import Paginator
@@ -17,23 +16,26 @@ from article.forms import AddCategoryForm
 from article.forms import AddTagForm
 from article.forms import EditArticleForm
 from article.forms import EmailAuthenticationForm
+from article.forms import PostArticleForm
 from article.forms import PrepareArticleForm
-from article.forms import PrePostArticleForm
 from article.models import Article
 from article.models import ArticleCategory
 from article.models import Tag
 
 
-class Login(LoginView):
+class LoginView(views.LoginView):
     form_class = EmailAuthenticationForm
     template_name = "article/login/login.html"
 
 
-class Logout(LoginRequiredMixin, LogoutView):
+class LogoutView(LoginRequiredMixin, views.LogoutView):
     pass
 
 
-class Index(LoginRequiredMixin, View):
+class IndexView(LoginRequiredMixin, View):
+
+    article_per_page = 5
+
     def get(self, request):
         user = request.user
 
@@ -46,8 +48,7 @@ class Index(LoginRequiredMixin, View):
         # ページ機能
         page = request.GET.get("page", 1)
 
-        article_per_page = 5
-        paginator = Paginator(latest_article_list, article_per_page)
+        paginator = Paginator(latest_article_list, self.article_per_page)
 
         try:
             pages = paginator.page(page)
@@ -64,7 +65,7 @@ class Index(LoginRequiredMixin, View):
         return render(request, "article/login/index.html", context)
 
 
-class Detail(LoginRequiredMixin, View):
+class DetailView(LoginRequiredMixin, View):
     def get(self, request, article_id):
         user = request.user
         article = get_object_or_404(Article, pk=article_id)
@@ -101,7 +102,7 @@ class Detail(LoginRequiredMixin, View):
         return render(request, "article/login/detail.html", context)
 
 
-class Edit(LoginRequiredMixin, View):
+class EditView(LoginRequiredMixin, View):
     def get(self, request, article_id):
         user = request.user
         article = get_object_or_404(Article, pk=article_id)
@@ -136,7 +137,7 @@ class Edit(LoginRequiredMixin, View):
         return redirect("article:login_index")
 
 
-class Delete(LoginRequiredMixin, DeleteView):
+class DeleteArticleView(LoginRequiredMixin, DeleteView):
     model = Article
     success_url = reverse_lazy("article:login_index")
     template_name = "article/login/delete.html"
@@ -154,7 +155,7 @@ class Delete(LoginRequiredMixin, DeleteView):
         return result
 
 
-class PrepareArticle(LoginRequiredMixin, View):
+class PrepareArticleView(LoginRequiredMixin, View):
     def get(self, request):
         user = request.user
         form = PrepareArticleForm()
@@ -174,7 +175,7 @@ class PrepareArticle(LoginRequiredMixin, View):
                 {"author": user.username, "form": form},
             )
 
-        form = PrePostArticleForm.form_with_prapare_article_data(request.POST)
+        form = PostArticleForm.form_with_prapare_article_data(request.POST)
         return render(
             request,
             "article/login/prepost_content.html",
@@ -182,9 +183,9 @@ class PrepareArticle(LoginRequiredMixin, View):
         )
 
 
-class PostArticle(LoginRequiredMixin, View):
+class PostArticleView(LoginRequiredMixin, View):
     def post(self, request):
-        form = PrePostArticleForm(request.POST)
+        form = PostArticleForm(request.POST)
         is_valid = form.is_valid()
         if not is_valid:
             return render(request, "article/login/prepost_content.html", {"form": form})
@@ -197,6 +198,9 @@ class PostArticle(LoginRequiredMixin, View):
 
 
 class CategoryView(LoginRequiredMixin, View):
+
+    article_per_page = 5
+
     def get(self, request, category):
 
         user = request.user
@@ -210,9 +214,8 @@ class CategoryView(LoginRequiredMixin, View):
         # ページ機能
         page = request.GET.get("page", 1)
 
-        article_per_page = 5
         paginator = Paginator(
-            latest_article_list_filtered_by_category, article_per_page
+            latest_article_list_filtered_by_category, self.article_per_page
         )
 
         try:
@@ -232,8 +235,10 @@ class CategoryView(LoginRequiredMixin, View):
 
 
 class TagView(LoginRequiredMixin, View):
-    def get(self, request, tag):
 
+    article_per_page = 5
+
+    def get(self, request, tag):
         user = request.user
         latest_article_list_filtered_with_tag = (
             Article.objects.filter(tag__name=tag)
@@ -245,8 +250,9 @@ class TagView(LoginRequiredMixin, View):
         # ページ機能
         page = request.GET.get("page", 1)
 
-        article_per_page = 5
-        paginator = Paginator(latest_article_list_filtered_with_tag, article_per_page)
+        paginator = Paginator(
+            latest_article_list_filtered_with_tag, self.article_per_page
+        )
 
         try:
             pages = paginator.page(page)

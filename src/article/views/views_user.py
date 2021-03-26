@@ -13,6 +13,9 @@ from article.models import Tag
 
 
 class IndexView(View):
+
+    article_per_page = 5
+
     def get(self, request):
 
         if request.user.is_authenticated:
@@ -28,8 +31,7 @@ class IndexView(View):
         # ページ機能
         page = request.GET.get("page", 1)
 
-        article_per_page = 5
-        paginator = Paginator(latest_article_list, article_per_page)
+        paginator = Paginator(latest_article_list, self.article_per_page)
 
         try:
             pages = paginator.page(page)
@@ -87,6 +89,9 @@ class DetailView(View):
 
 
 class CategoryView(View):
+
+    article_per_page = 5
+
     def get(self, request, category):
 
         if request.user.is_authenticated:
@@ -103,9 +108,8 @@ class CategoryView(View):
         # ページ機能
         page = request.GET.get("page", 1)
 
-        article_per_page = 5
         paginator = Paginator(
-            latest_article_list_filtered_by_category, article_per_page
+            latest_article_list_filtered_by_category, self.article_per_page
         )
 
         try:
@@ -124,6 +128,9 @@ class CategoryView(View):
 
 
 class TagView(View):
+
+    article_per_page = 5
+
     def get(self, request, tag):
 
         if request.user.is_authenticated:
@@ -140,8 +147,9 @@ class TagView(View):
         # ページ機能
         page = request.GET.get("page", 1)
 
-        article_per_page = 5
-        paginator = Paginator(latest_article_list_filtered_by_tag, article_per_page)
+        paginator = Paginator(
+            latest_article_list_filtered_by_tag, self.article_per_page
+        )
 
         try:
             pages = paginator.page(page)

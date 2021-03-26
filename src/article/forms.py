@@ -32,7 +32,6 @@ class EmailAuthenticationForm(forms.Form):
         self.request = request
         self.user_cache = None
         super().__init__(*args, **kwargs)
-
         self.email_filed = UserModel._meta.get_field(UserModel.USERNAME_FIELD)
         if self.fields["email"].label is None:
             self.fields["email"].label = capfirst(self.email_filed.verbose_name)
@@ -69,7 +68,7 @@ class EmailAuthenticationForm(forms.Form):
         return self.user_cache
 
 
-class PrePostArticleForm(forms.ModelForm):
+class PostArticleForm(forms.ModelForm):
     class Meta:
         model = Article
         exclude = ("author",)
@@ -120,7 +119,7 @@ class PrePostArticleForm(forms.ModelForm):
         for key in post.keys():
             params[key] = post[key]
 
-        form = PrePostArticleForm(initial=params)
+        form = PostArticleForm(initial=params)
         return form
 
 
