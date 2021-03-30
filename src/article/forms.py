@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from .models import Article
 from .models import ArticleCategory
+from .models import Tag
 
 UserModel = get_user_model()
 
@@ -31,7 +32,6 @@ class EmailAuthenticationForm(forms.Form):
         self.request = request
         self.user_cache = None
         super().__init__(*args, **kwargs)
-
         self.email_filed = UserModel._meta.get_field(UserModel.USERNAME_FIELD)
         if self.fields["email"].label is None:
             self.fields["email"].label = capfirst(self.email_filed.verbose_name)
@@ -68,7 +68,7 @@ class EmailAuthenticationForm(forms.Form):
         return self.user_cache
 
 
-class PrePostArticleForm(forms.ModelForm):
+class PostArticleForm(forms.ModelForm):
     class Meta:
         model = Article
         exclude = ("author",)
@@ -79,9 +79,26 @@ class PrePostArticleForm(forms.ModelForm):
             "publish_date": "投稿予定日",
             "category": "カテゴリー",
         }
-        widgets = {"summary": forms.Textarea(attrs={"cols": 50})}
 
-    error_messages = {"future_date": "未来の日付になっています."}
+        widgets = {
+            "summary": forms.Textarea(attrs={"cols": 50}),
+            "tag": forms.CheckboxSelectMultiple,
+        }
+
+    public = forms.BooleanField(
+        label="記事を公開",
+        initial=False,
+        required=False,
+    )
+
+    tag = forms.ModelMultipleChoiceField(
+        label="タグ",
+        widget=forms.CheckboxSelectMultiple,
+        queryset=Tag.objects.all(),
+        required=False,
+    )
+
+    error_messages = {"future_date": "過去の日付になっています."}
 
     def clean_publish_date(self):
         publish_date = self.cleaned_data.get("publish_date")
@@ -102,7 +119,7 @@ class PrePostArticleForm(forms.ModelForm):
         for key in post.keys():
             params[key] = post[key]
 
-        form = PrePostArticleForm(initial=params)
+        form = PostArticleForm(initial=params)
         return form
 
 
@@ -126,7 +143,14 @@ class PrepareArticleForm(forms.Form):
         label="カテゴリー", queryset=ArticleCategory.objects.all()
     )
 
-    error_messages = {"future_date": "未来の日付になっています."}
+    tag = forms.ModelMultipleChoiceField(
+        label="タグ",
+        widget=forms.CheckboxSelectMultiple,
+        queryset=Tag.objects.all(),
+        required=False,
+    )
+
+    error_messages = {"future_date": "過去の日付になっています."}
 
     def clean_publish_date(self):
         publish_date = self.cleaned_data.get("publish_date")
@@ -142,23 +166,55 @@ class PrepareArticleForm(forms.Form):
         return date > timezone.now()
 
 
+class EditArticleForm(forms.ModelForm):
+    class Meta:
+        model = Article
+        exclude = ("author",)
+        labels = {
+            "title": "タイトル",
+            "summary": "要約",
+            "content": "内容",
+            "publish_date": "投稿予定日",
+            "category": "カテゴリー",
+        }
+        widgets = {
+            "summary": forms.Textarea(attrs={"cols": 50}),
+        }
+
+    public = forms.BooleanField(
+        label="記事を公開",
+        required=False,
+    )
+
+    tag = forms.ModelMultipleChoiceField(
+        label="タグ",
+        widget=forms.CheckboxSelectMultiple,
+        queryset=Tag.objects.all(),
+        required=False,
+    )
+
+
 class AddCategoryForm(forms.ModelForm):
     class Meta:
         model = ArticleCategory
         fields = "__all__"
         labels = {
-            "category": "category",
+            "name": "カテゴリ",
         }
 
-    error_message = {
-        "exited_category": "そのカテゴリはすでに存在しています.",
-    }
+        error_messages = {
+            "name": {"unique": "すでにそのカテゴリは存在してます."},
+        }
 
-    def clean_category(self):
-        category = self.cleaned_data.get("category")
-        if ArticleCategory.objects.filter(category=category).exists():
-            raise forms.ValidationError(
-                self.error_message["exited_category"],
-                code="exited_category",
-            )
-        return category
+
+class AddTagForm(forms.ModelForm):
+    class Meta:
+        model = Tag
+        fields = "__all__"
+        labels = {
+            "name": "タグ",
+        }
+
+        error_messages = {
+            "name": {"unique": "すでにそのタグは存在してます."},
+        }

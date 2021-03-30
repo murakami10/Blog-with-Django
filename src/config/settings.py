@@ -76,8 +76,8 @@ LOGIN_URL = "article:index"
 LOGIN_REDIRECT_URL = "article:login_index"
 LOGOUT_REDIRECT_URL = "article:index"
 
-MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media_root")
+MEDIA_URL = "/media/"
 
 # mdeditorを使用するための設定
 X_FRAME_OPTIONS = "SAMEORIGIN"

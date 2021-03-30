@@ -1,5 +1,6 @@
-{% extends "article/login_base.html" %}
+{% extends "article/login/base.html" %}
 {% load static %}
+{% load calc_date %}
 {% block page_title %}記事一覧{% endblock %}
 
 {% block content %}
@@ -14,12 +15,17 @@
 {% endif %}
     <div id="main_card">
         {% if filter_category %}
-            <div style="text-align: center;padding-bottom: 10px;">
-                <h3>{{ filter_category }}カテゴリを選択</h3>
-            </div>
-        {% endif %}
+           <div style="text-align: center;padding-bottom: 10px;">
+               <h3>{{ filter_category }}カテゴリを選択</h3>
+           </div>
+       {% elif filter_tag %}
+           <div style="text-align: center;padding-bottom: 10px;">
+               <h3>{{ filter_tag }}タグを選択</h3>
+           </div>
+       {% endif %}
 
-        {% for article in latest_article_list %}
+
+        {% for article in pages %}
             <div class="card relative">
                 <div>
                     <a href="{% url "article:login_detail" article.id %}">
@@ -27,7 +33,17 @@
                             <p class="h1">title:{{ article.title }}</p>
                         </div>
                     </a>
+
                     {% if user.id == article.author_id %}
+                        {% if article.public == 0 %}
+                            <div id="not_public">
+                                <p style="color:red;">非公開</p>
+                            </div>
+                        {% elif article.publish_date|is_future_date %}
+                            <div id="is_future">
+                                <p style="color:green;">公開予定</p>
+                            </div>
+                        {% endif %}
                         <div id="edit">
                             <a href="{% url "article:login_edit" article.id %}">
                                 <div class="btn btn-success">edit</div>
@@ -41,26 +57,27 @@
                     {% endif %}
                 </div>
                 <div class="card-body">
-                    author: {{ article.author__username }} <br/>
+                    author: {{ article.author.username }} <br/>
                     summary: {{ article.summary }} <br/>
                     publish_date: {{ article.publish_date }} <br/>
-                    category: {{ article.category__category }} <br/>
+                    category: {{ article.category }} <br/>
+                    tag:
+                    {% for t in article.tag.all %}
+                        {{ t }}
+                    {% empty %}
+                        なし
+                    {% endfor %}
                 </div>
             </div>
         {% empty %}
             <h2 style="text-align: center;padding-top:30px;">記事が存在しません</h2>
         {% endfor %}
     </div>
+
+    {% include "article/include/pagenation.html" %}
+
 {% endblock %}
 
 {% block side-content %}
-    <div id="side_category">
-        <h4>Category</h4>
-        <ul class="list-group list-group-flush">
-            {% for c in category %}
-                <li class="list-group-item"><a href="{% url "article:category"  c.category%}">{{ c.category }}</a></li>
-
-            {% endfor %}
-        </ul>
-    </div>
+    {% include "article/include/side_bar.html" %}
 {% endblock %}

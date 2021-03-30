@@ -3,6 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 
 from .models import Article
 from .models import ArticleCategory
+from .models import Tag
 from .models import User
 
 
@@ -48,6 +49,11 @@ class UserAdminInModel(UserAdmin):
     ordering = ("email",)
 
 
+class ArticleAdmin(admin.ModelAdmin):
+    filter_horizontal = ("tag",)
+
+
 admin.site.register(User, UserAdminInModel)
-admin.site.register(Article)
+admin.site.register(Article, ArticleAdmin)
 admin.site.register(ArticleCategory)
+admin.site.register(Tag)
