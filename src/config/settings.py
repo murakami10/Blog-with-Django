@@ -162,8 +162,7 @@ DATABASES = {
         "NAME": "article",
         "USER": "user",
         "PASSWORD": "password",
-        # "HOST": "db",
-        "HOST": "127.0.0.1",
+        "HOST": "db",
         "PORT": "3306",
     }
 }
