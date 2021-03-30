@@ -1,5 +1,3 @@
-from django.conf.urls import include
-from django.conf.urls import url
 from django.urls import path
 
 from .views import views_login
@@ -55,5 +53,4 @@ urlpatterns = [
         views_login.TagView.as_view(),
         name="login_tag",
     ),
-    url(r"mdeditor/", include("mdeditor.urls")),
 ]
