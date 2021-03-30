@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+{% block page_title %}記事一覧{% endblock %}
+{% block login %}
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url "article:login"%}">Login</a>
+        </li>
+    </ul>
+{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/article/index.css' %}">
+   <div id="main_card">
+       {% if filter_category %}
+           <div style="text-align: center;padding-bottom: 10px;">
+               <h3>{{ filter_category }}カテゴリを選択</h3>
+           </div>
+       {% elif filter_tag %}
+           <div style="text-align: center;padding-bottom: 10px;">
+               <h3>{{ filter_tag }}タグを選択</h3>
+           </div>
+       {% endif %}
+
+       {% for article in pages %}
+           <div class="card">
+               <a href="{% url "article:detail" article.id %}">
+                   <div class="card-header">
+                       <p class="h1">{{ article.title }}</p>
+                   </div>
+               </a>
+               <div class="card-body">
+{#                   author: {{ article.author.username }} <br/>#}
+                   {{ article.summary }} <br/><br/>
+                   {{ article.publish_date }} <br/>
+                   Category:
+                   <a href="{% url "article:category" article.category %}" class="badge badge-primary">{{ article.category }}</a> <br/>
+                   Tag:
+                   {% for t in article.tag.all %}
+                       <a href="{% url "article:tag" t %}" class="badge badge-secondary">#{{ t }}</a>
+                   {% empty %}
+                       なし
+                   {% endfor %}
+               </div>
+           </div>
+       {% empty %}
+           <h2 style="text-align: center; padding-top: 30px;">記事が存在しません</h2>
+       {% endfor %}
+
+       {% include "article/include/pagenation.html" %}
+
+    </div>
+
+{% endblock %}
+
+{% block side-content %}
+    {% include "article/include/side_bar.html" %}
+{% endblock %}

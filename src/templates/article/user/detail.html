@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+{% load markdown_extras %}
+
+{% block page_title %}記事一覧{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/article/detail.css' %}">
+    <div class="detail-main">
+        {% if article %}
+{#            author: {{ article.author.username }} <br/>#}
+            <h1>{{ article.title }}</h1><br/>
+            <div id="content"> {{ article.content |markdown|safe}} </div><br/>
+            {{ article.publish_date }} <br/>
+            Category:
+            <a href="{% url "article:category" article.category %}" class="badge badge-primary">{{ article.category }}</a> <br/>
+            Tag :
+            {% for tag in article.tag.all %}
+                <a href="{% url "article:tag" tag %}" class="badge badge-secondary">#{{ tag }}</a>
+            {% empty %}
+                なし
+            {% endfor %}
+        {% else %}
+            <h2>記事はありません</h2>
+        {% endif %}
+    </div>
+
+    <div class="next_pre_article">
+        <div class="next_article">
+            {% if next_article %}
+                 <a href="{% url "article:detail" next_article.id %}">
+                    次の記事<br/>
+                    {{ next_article.title }}
+                 </a>
+            {% endif %}
+        </div>
+
+        <div class="pre_article">
+            {% if pre_article %}
+                <a href="{% url "article:detail" pre_article.id %}">
+                    前の記事<br/>
+                    {{ pre_article.title }}
+                </a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block side-content %}
+    {% include "article/include/side_bar.html" %}
+{% endblock %}

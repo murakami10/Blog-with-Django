@@ -1,0 +1,83 @@
+{% extends "article/login/base.html" %}
+{% load static %}
+{% load calc_date %}
+{% block page_title %}記事一覧{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/article/index.css' %}">
+<link rel="stylesheet" href="{% static 'css/article/login_index.css' %}">
+{% if messages %}
+	<ul class="messages">
+		{% for message in messages %}
+			<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+		{% endfor %}
+	</ul>
+{% endif %}
+    <div id="main_card">
+        {% if filter_category %}
+           <div style="text-align: center;padding-bottom: 10px;">
+               <h3>{{ filter_category }}カテゴリを選択</h3>
+           </div>
+       {% elif filter_tag %}
+           <div style="text-align: center;padding-bottom: 10px;">
+               <h3>{{ filter_tag }}タグを選択</h3>
+           </div>
+       {% endif %}
+
+
+        {% for article in pages %}
+            <div class="card relative">
+                <div>
+                    <a href="{% url "article:login_detail" article.id %}">
+                        <div class="card-header">
+                            <p class="h1">title:{{ article.title }}</p>
+                        </div>
+                    </a>
+
+                    {% if user.id == article.author_id %}
+                        {% if article.public == 0 %}
+                            <div id="not_public">
+                                <p style="color:red;">非公開</p>
+                            </div>
+                        {% elif article.publish_date|is_future_date %}
+                            <div id="is_future">
+                                <p style="color:green;">公開予定</p>
+                            </div>
+                        {% endif %}
+                        <div id="edit">
+                            <a href="{% url "article:login_edit" article.id %}">
+                                <div class="btn btn-success">edit</div>
+                            </a>
+                        </div>
+                        <div id="delete">
+                            <a href="{% url "article:login_delete" article.id %}">
+                                <div class="btn btn-danger">delete</div>
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    author: {{ article.author.username }} <br/>
+                    summary: {{ article.summary }} <br/>
+                    publish_date: {{ article.publish_date }} <br/>
+                    category: {{ article.category }} <br/>
+                    tag:
+                    {% for t in article.tag.all %}
+                        {{ t }}
+                    {% empty %}
+                        なし
+                    {% endfor %}
+                </div>
+            </div>
+        {% empty %}
+            <h2 style="text-align: center;padding-top:30px;">記事が存在しません</h2>
+        {% endfor %}
+    </div>
+
+    {% include "article/include/pagenation.html" %}
+
+{% endblock %}
+
+{% block side-content %}
+    {% include "article/include/side_bar.html" %}
+{% endblock %}

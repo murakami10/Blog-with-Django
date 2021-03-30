@@ -1,0 +1,29 @@
+
+body{
+    background-color: #eeeeee;
+}
+
+.main{
+    background-color: #ffffff;
+    margin-right: auto;
+    margin-left: auto;
+    margin-bottom: auto;
+    max-width: 1200px;
+    border: solid 0.5px;
+    border-top: none;
+    padding-bottom: 70px;
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
+.main_content{
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.side_content{
+    padding-left: 15px;
+    padding-right: 0px;
+    padding-top: 70px;
+}
+

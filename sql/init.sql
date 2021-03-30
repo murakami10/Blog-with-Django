@@ -1,3 +1,0 @@
-GRANT ALL PRIVILEGES ON test_article.* TO 'user'@'%';
-
-FLUSH PRIVILEGES;
