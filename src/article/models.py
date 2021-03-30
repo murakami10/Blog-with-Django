@@ -63,7 +63,7 @@ class Article(models.Model):
     category = models.ForeignKey(
         ArticleCategory, verbose_name="カテゴリ", on_delete=models.PROTECT
     )
-    tag = models.ManyToManyField(Tag, verbose_name="タグ")
+    tag = models.ManyToManyField(Tag, verbose_name="タグ", blank=True)
 
     def set_author(self, user: User):
         self.author_id = user.id
