@@ -34,6 +34,7 @@ services:
     volumes:
       - ./nginx/conf:/etc/nginx/conf.d
       - ./nginx/uwsgi_params:/etc/nginx/uwsgi_params
-      - ./src/static:/static
+      - ./src/collected_static:/static
+      - ./src/media_root:/media
     depends_on:
       - app
