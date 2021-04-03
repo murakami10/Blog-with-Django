@@ -1,6 +1,6 @@
 
 # pull image
-FROM python:3.8.7-buster
+FROM python:3.8-buster
 
 # __pycache__ を作らないための設定
 ENV PYTHONDONTWRITEBYTECODE 1 
