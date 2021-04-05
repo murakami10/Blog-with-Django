@@ -21,12 +21,12 @@ docker-compose exec app bash -c 'python manage.py collectstatic'
 以下のURLでサイトにアクセスできます。  
 http://127.0.0.1:8123/article/index/  
 
-ログインのユーザー情報は 
+ログインのユーザー情報は  
 email: root@root.com  
 password: aiueoaiueo  
 となっています。
 
-## 使用技術
+# 使用技術
 - Python 3.8
 - Django 3.1
 - MySQL 5.7
@@ -38,11 +38,11 @@ password: aiueoaiueo
 - markdown 3.3.4
 - django-bootstrap-datepicker-plus 3.0.5
 
-## 機能一覧
+# 機能一覧
 
 - 記事閲覧機能
 - カテゴリー、タグ選択機能
-- - ログイン機能
+- ログイン機能
 - 記事投稿機能
 - カテゴリとタグ追加機能
 - 記事の削除機能
