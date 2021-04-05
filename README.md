@@ -3,6 +3,8 @@
 これはDjangoで作成した簡易的なblogサイトです。  
 一般的なブログのように記事を閲覧でき、ログインすることで記事を作成し投稿することができます。
 
+<img width="1427" alt="top" src="https://user-images.githubusercontent.com/53958213/113576870-4b08f280-965b-11eb-8520-cec43296e6bb.png">
+
 # セットアップ方法
 
 gitとdocker-composeを用いてこのサイトをセットアップします。  
