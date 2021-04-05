@@ -5,7 +5,6 @@ name = "pypi"
 
 [packages]
 django = "~=3.1"
-pytest = "~=6.2"
 uwsgi = "==2.0.17"
 mysqlclient = "==1.4.6"
 django-mdeditor = "==0.1.18"
@@ -16,8 +15,8 @@ django-bootstrap-datepicker-plus = "==3.0.5"
 mypy = "*"
 flake8 = "*"
 isort = "*"
-black = "*"
 django-debug-toolbar = "*"
+black = "==19.10b0"
 
 [requires]
 python_version = "3.8"
