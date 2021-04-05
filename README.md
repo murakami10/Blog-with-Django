@@ -1,17 +1,18 @@
-# article_django
+# Blog-with-Django
 
 これはDjangoで作成した簡易的なblogサイトです。  
 一般的なブログのように記事を閲覧でき、ログインすることで記事を作成し投稿することができます。
 
-## セットアップ方法
+# セットアップ方法
+
 gitとdocker-composeを用いてこのサイトをセットアップします。  
 まず、gitを用いてコードをダウンロードします。
 ~~~
-git clone aiueo
+git clone https://github.com/murakami10/Blog-with-Django.git
 ~~~  
-次に、ダウンロードしたディレクトリでdocker-composeを用いてコンテナを立ち上げます。
+次に、ダウンロードしたコードの中でdocker-composeを用いてコンテナを立ち上げます。
 ~~~
-cd article_django
+cd Blog-with-Django
 docker-compose up -d
 ~~~  
 最後に静的ファイルを集めるために以下を実行します。  
@@ -21,10 +22,9 @@ docker-compose exec app bash -c 'python manage.py collectstatic'
 以下のURLでサイトにアクセスできます。  
 http://127.0.0.1:8123/article/index/  
 
-ログインのユーザー情報は  
-email: root@root.com  
-password: aiueoaiueo  
-となっています。
+ログインするためのユーザー情報は以下になります。  
+* email: root@root.com  
+* password: aiueoaiueo
 
 # 使用技術
 - Python 3.8
@@ -48,4 +48,3 @@ password: aiueoaiueo
 - 記事の削除機能
 - 投稿記事編集機能
 - ページネーション機能 
-
