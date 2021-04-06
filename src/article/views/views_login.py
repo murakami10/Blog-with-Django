@@ -311,3 +311,9 @@ class AddTagView(LoginRequiredMixin, View):
         form.save()
         messages.success(request, "タグを追加しました.")
         return redirect("article:login_index")
+
+
+class SettingView(LoginRequiredMixin, View):
+    def get(self, request):
+
+        return render(request, "article/login/setting.html", {"author": request.user},)
