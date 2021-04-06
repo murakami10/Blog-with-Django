@@ -3,10 +3,9 @@
 
 {% load static %}
 
-{% block page_title %}記事一覧{% endblock %}
+{% block page_title %}記事編集{% endblock %}
 
-{% block content_fluid %}
-
+{% block content %}
     <div class="cn_fl">
     <link rel="stylesheet" href="{% static 'css/article/post.css' %}">
          <form action="{% url "article:post"%}" method="post" >
@@ -16,6 +15,5 @@
              <button class="btn btn-success" type="submit">投稿する</button>
          </form>
     </div>
-
 {% endblock %}
 

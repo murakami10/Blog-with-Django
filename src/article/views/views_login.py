@@ -82,10 +82,7 @@ class DetailView(LoginRequiredMixin, View):
         )
 
         pre_article = (
-            Article.objects.filter(
-                public=1,
-                publish_date__lt=article.publish_date,
-            )
+            Article.objects.filter(public=1, publish_date__lt=article.publish_date,)
             .order_by("-publish_date")
             .values("id", "title")
             .first()
@@ -112,9 +109,7 @@ class EditView(LoginRequiredMixin, View):
 
         form = EditArticleForm(instance=article)
         return render(
-            request,
-            "article/login/edit.html",
-            {"author": user.username, "form": form},
+            request, "article/login/edit.html", {"author": user.username, "form": form},
         )
 
     def post(self, request, article_id):
@@ -161,7 +156,7 @@ class PrepareArticleView(LoginRequiredMixin, View):
         form = PrepareArticleForm()
         return render(
             request,
-            "article/login/prepare_post.html",
+            "article/login/prepare_article.html",
             {"author": user.username, "form": form},
         )
 
@@ -171,14 +166,14 @@ class PrepareArticleView(LoginRequiredMixin, View):
         if not form.is_valid():
             return render(
                 request,
-                "article/login/prepare_post.html",
+                "article/login/prepare_article.html",
                 {"author": user.username, "form": form},
             )
 
         form = PostArticleForm.form_with_prapare_article_data(request.POST)
         return render(
             request,
-            "article/login/prepost_content.html",
+            "article/login/post_article.html",
             {"author": user.username, "form": form},
         )
 
@@ -188,7 +183,7 @@ class PostArticleView(LoginRequiredMixin, View):
         form = PostArticleForm(request.POST)
         is_valid = form.is_valid()
         if not is_valid:
-            return render(request, "article/login/prepost_content.html", {"form": form})
+            return render(request, "article/login/post_article.html", {"form": form})
 
         article = form.save(commit=False)
         article.set_author(request.user)
