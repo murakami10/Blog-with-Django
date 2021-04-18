@@ -7,13 +7,11 @@ body{
     background-color: #ffffff;
     margin-right: auto;
     margin-left: auto;
-    margin-bottom: auto;
+    margin-bottom: 60px;
     max-width: 1200px;
     border: solid 0.5px;
     border-top: none;
     padding-bottom: 70px;
-    padding-right: 0px;
-    padding-left: 0px;
 }
 
 .main_content{
