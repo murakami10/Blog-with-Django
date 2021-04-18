@@ -1,5 +1,7 @@
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import views
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
@@ -16,8 +18,11 @@ from article.forms import AddCategoryForm
 from article.forms import AddTagForm
 from article.forms import EditArticleForm
 from article.forms import EmailAuthenticationForm
+from article.forms import EmailForm
 from article.forms import PostArticleForm
 from article.forms import PrepareArticleForm
+from article.forms import SingUpForm
+from article.forms import UsernameForm
 from article.models import Article
 from article.models import ArticleCategory
 from article.models import Tag
@@ -315,5 +320,99 @@ class AddTagView(LoginRequiredMixin, View):
 
 class SettingView(LoginRequiredMixin, View):
     def get(self, request):
-
         return render(request, "article/login/setting.html", {"author": request.user},)
+
+
+class ChangeUsernameView(LoginRequiredMixin, View):
+    def get(self, request):
+        form = UsernameForm(instance=request.user)
+        return render(
+            request,
+            "article/login/change_username.html",
+            {"author": request.user, "form": form},
+        )
+
+    def post(self, request):
+        form = UsernameForm(request.POST, instance=request.user)
+
+        if not form.is_valid():
+            return render(
+                request,
+                "article/login/change_username.html",
+                {"author": request.user, "form": form},
+            )
+
+        form.save()
+        messages.success(request, f"ユーザ名を {request.POST['username']} に変更しました.")
+        return redirect("article:setting")
+
+
+class ChangeEmailView(LoginRequiredMixin, View):
+    def get(self, request):
+        form = EmailForm(instance=request.user)
+        return render(
+            request,
+            "article/login/change_email.html",
+            {"author": request.user, "form": form},
+        )
+
+    def post(self, request):
+        form = EmailForm(request.POST, instance=request.user)
+
+        if not form.is_valid():
+            return render(
+                request,
+                "article/login/change_email.html",
+                {"author": request.user, "form": form},
+            )
+
+        form.save()
+        messages.success(request, f"メールアドレスを {request.POST['email']} に変更しました.")
+        return redirect("article:setting")
+
+
+class ChangePasswordView(LoginRequiredMixin, View):
+    def get(self, request):
+        form = PasswordChangeForm(request.user)
+        return render(
+            request,
+            "article/login/change_password.html",
+            {"author": request.user, "form": form},
+        )
+
+    def post(self, request):
+        form = PasswordChangeForm(request.user, request.POST)
+        if not form.is_valid():
+            messages.error(request, "以下のエラーを修正してください")
+            return render(
+                request,
+                "article/login/change_password.html",
+                {"author": request.user, "form": form},
+            )
+        user = form.save()
+        update_session_auth_hash(request, user)
+        messages.success(request, "パスワードを変更しました")
+        return redirect("article:setting")
+
+
+class SignUpView(LoginRequiredMixin, View):
+    def get(self, request):
+        form = SingUpForm(initial={"username": ""})
+        return render(
+            request,
+            "article/login/sign_up.html",
+            {"author": request.user, "form": form},
+        )
+
+    def post(self, request):
+        form = SingUpForm(request.POST)
+        if not form.is_valid():
+            messages.error(request, "以下のエラーを修正してください")
+            return render(
+                request,
+                "article/login/sign_up.html",
+                {"author": request.user, "form": form},
+            )
+        form.save()
+        messages.success(request, "新たなユーザを作成しました")
+        return redirect("article:setting")

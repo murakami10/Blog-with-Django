@@ -2,6 +2,7 @@ import bootstrap_datepicker_plus as datetimepicker
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm
 from django.utils import timezone
 from django.utils.text import capfirst
 from django.utils.translation import gettext_lazy as _
@@ -9,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from .models import Article
 from .models import ArticleCategory
 from .models import Tag
+from .models import User
 
 UserModel = get_user_model()
 
@@ -16,8 +18,7 @@ UserModel = get_user_model()
 class EmailAuthenticationForm(forms.Form):
 
     email = forms.EmailField(
-        max_length=254,
-        widget=forms.EmailInput(attrs={"autofocus": True}),
+        max_length=254, widget=forms.EmailInput(attrs={"autofocus": True}),
     )
     password = forms.CharField(
         label=_("Password"), strip=False, widget=forms.PasswordInput
@@ -68,6 +69,30 @@ class EmailAuthenticationForm(forms.Form):
         return self.user_cache
 
 
+class UsernameForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ("username",)
+        labels = {"username": "ユーザネーム"}
+
+
+class EmailForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ("email",)
+        labels = {"email": "メールアドレス"}
+        widgets = {
+            "email": forms.EmailInput,
+        }
+
+
+class SingUpForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ("email", "username", "password1", "password2")
+        labels = {"username": "ユーザ名"}
+
+
 class PostArticleForm(forms.ModelForm):
     class Meta:
         model = Article
@@ -85,11 +110,7 @@ class PostArticleForm(forms.ModelForm):
             "tag": forms.CheckboxSelectMultiple,
         }
 
-    public = forms.BooleanField(
-        label="記事を公開",
-        initial=False,
-        required=False,
-    )
+    public = forms.BooleanField(label="記事を公開", initial=False, required=False,)
 
     tag = forms.ModelMultipleChoiceField(
         label="タグ",
@@ -105,8 +126,7 @@ class PostArticleForm(forms.ModelForm):
 
         if not self.is_future_date(publish_date):
             raise forms.ValidationError(
-                self.error_messages["future_date"],
-                code="future_date",
+                self.error_messages["future_date"], code="future_date",
             )
         return publish_date
 
@@ -133,10 +153,7 @@ class PrepareArticleForm(forms.Form):
         label="投稿日付",
         widget=datetimepicker.DateTimePickerInput(
             format="%Y-%m-%d %H:%M:%S",
-            options={
-                "locale": "ja",
-                "dayViewHeaderFormat": "YYYY年 MMMM",
-            },
+            options={"locale": "ja", "dayViewHeaderFormat": "YYYY年 MMMM",},
         ),
     )
     category = forms.ModelChoiceField(
@@ -157,8 +174,7 @@ class PrepareArticleForm(forms.Form):
 
         if not self.is_future_date(publish_date):
             raise forms.ValidationError(
-                self.error_messages["future_date"],
-                code="future_date",
+                self.error_messages["future_date"], code="future_date",
             )
         return publish_date
 
@@ -181,10 +197,7 @@ class EditArticleForm(forms.ModelForm):
             "summary": forms.Textarea(attrs={"cols": 50}),
         }
 
-    public = forms.BooleanField(
-        label="記事を公開",
-        required=False,
-    )
+    public = forms.BooleanField(label="記事を公開", required=False,)
 
     tag = forms.ModelMultipleChoiceField(
         label="タグ",
