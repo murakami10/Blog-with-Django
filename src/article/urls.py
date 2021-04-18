@@ -12,11 +12,7 @@ urlpatterns = [
         views_user.CategoryView.as_view(),
         name="category",
     ),
-    path(
-        "index/tags/<str:tag>/",
-        views_user.TagView.as_view(),
-        name="tag",
-    ),
+    path("index/tags/<str:tag>/", views_user.TagView.as_view(), name="tag",),
     path("prepare/", views_login.PrepareArticleView.as_view(), name="prepare_post"),
     path("post/", views_login.PostArticleView.as_view(), name="post"),
     path("login/", views_login.LoginView.as_view(), name="login"),
@@ -49,8 +45,23 @@ urlpatterns = [
         name="login_category",
     ),
     path(
-        "login/index/tag/<str:tag>/",
-        views_login.TagView.as_view(),
-        name="login_tag",
+        "login/index/tag/<str:tag>/", views_login.TagView.as_view(), name="login_tag",
     ),
+    path("login/setting/", views_login.SettingView.as_view(), name="setting",),
+    path(
+        "login/change-username",
+        views_login.ChangeUsernameView.as_view(),
+        name="change_username",
+    ),
+    path(
+        "login/change-email",
+        views_login.ChangeEmailView.as_view(),
+        name="change_email",
+    ),
+    path(
+        "login/change-password",
+        views_login.ChangePasswordView.as_view(),
+        name="change_password",
+    ),
+    path("login/sign-up", views_login.SignUpView.as_view(), name="sign_up"),
 ]

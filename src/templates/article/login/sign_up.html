@@ -1,0 +1,24 @@
+{% extends "article/login/base.html" %}
+{% load static %}
+
+{% block page_title %}ユーザ作成{% endblock %}
+
+{% block content %}
+    <div class="cn_fl">
+        {% if messages %}
+	        <ul class="messages">
+	        	{% for message in messages %}
+	        		<li{% if message.tags %} class="{{ message.tags }}"{% endif %} style="color: red;">{{ message }}</li>
+	        	{% endfor %}
+	        </ul>
+        {% endif %}
+    <h3>ユーザを作成</h3>
+    <link rel="stylesheet" href="{% static 'css/article/post.css' %}">
+         <form method="post" >
+             {% csrf_token %}
+             {{ form.as_p }}
+             <button class="btn btn-success" type="submit">作成</button>
+         </form>
+    </div>
+    <br/>
+{% endblock %}

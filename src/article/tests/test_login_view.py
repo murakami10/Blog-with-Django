@@ -8,6 +8,7 @@ from django.utils import timezone
 from article.models import Article
 from article.models import ArticleCategory
 from article.models import Tag
+from article.models import User
 from article.views.views_login import CategoryView
 from article.views.views_login import IndexView
 from article.views.views_login import TagView
@@ -190,10 +191,7 @@ class PostArticleViewTests(TestCase):
 
         num_of_article = Article.objects.count()
 
-        response = self.client.post(
-            reverse("article:post"),
-            data=data,
-        )
+        response = self.client.post(reverse("article:post"), data=data,)
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
         self.assertEqual(response["Location"], reverse("article:login_index"))
@@ -244,8 +242,7 @@ class AddCategoryViewTests(TestCase):
         num_of_category = ArticleCategory.objects.count()
 
         response = self.client.post(
-            reverse("article:add_category"),
-            data={"name": "django"},
+            reverse("article:add_category"), data={"name": "django"},
         )
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
@@ -294,8 +291,7 @@ class AddTagViewTests(TestCase):
         num_of_tag = Tag.objects.count()
 
         response = self.client.post(
-            reverse("article:add_tag"),
-            data={"name": "django"},
+            reverse("article:add_tag"), data={"name": "django"},
         )
 
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
@@ -695,3 +691,132 @@ class TagViewTests(TestCase):
                 msg="response contain " + str(index) + " article", tag="t1"
             ):
                 self.assertNotContains(response, self.tag1.name + "python" + str(index))
+
+
+class SettingViewTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_superuser(
+            email="test@test.com", password="aiueoaiueo", username="tomtom"
+        )
+
+    def setUp(self) -> None:
+        self.client.force_login(self.user)
+
+    def test_display_setting_page_ok(self):
+
+        response = self.client.get(reverse("article:setting"))
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        content_included = [
+            "ユーザ名を変更する",
+            "メールアドレスを変更する",
+            "パスワードを変更する",
+            "新しくユーザを作成する",
+        ]
+        for content in content_included:
+            with self.subTest(msg="response doesn't contain " + content):
+                self.assertContains(response, content)
+
+
+class ChangeUsernameViewTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_superuser(
+            email="test@test.com", password="aiueoaiueo", username="tomtom"
+        )
+
+    def setUp(self) -> None:
+        self.client.force_login(self.user)
+
+    def test_change_username_ok(self):
+
+        change_name = "john"
+        response = self.client.post(
+            reverse("article:change_username"), data={"username": change_name},
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        user = User.objects.get(id=self.user.id)
+        self.assertEqual(change_name, user.username)
+
+
+class ChangeEmailViewTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_superuser(
+            email="test@test.com", password="aiueoaiueo", username="tomtom"
+        )
+
+    def setUp(self) -> None:
+        self.client.force_login(self.user)
+
+    def test_change_email_ok(self):
+
+        change_email = "aiueo@aiueo.com"
+        response = self.client.post(
+            reverse("article:change_email"), data={"email": change_email},
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        user = User.objects.get(id=self.user.id)
+        self.assertEqual(change_email, user.email)
+
+
+class ChangePasswordViewTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.password = "aiueoaiueo"
+        cls.user = get_user_model().objects.create_superuser(
+            email="test@test.com", password=cls.password, username="tomtom"
+        )
+
+    def setUp(self) -> None:
+        self.client.force_login(self.user)
+
+    def test_change_password_ok(self):
+        new_password = "aiuo1347"
+        response = self.client.post(
+            reverse("article:change_password"),
+            data={
+                "old_password": self.password,
+                "new_password1": new_password,
+                "new_password2": new_password,
+            },
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        user = User.objects.get(id=self.user.id)
+        self.assertTrue(user.check_password(new_password))
+
+
+class SignUpViewTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.password = "aiueoaiueo"
+        cls.user = get_user_model().objects.create_superuser(
+            email="test@test.com", password=cls.password, username="tomtom"
+        )
+
+    def setUp(self) -> None:
+        self.client.force_login(self.user)
+
+    def test_sigh_up_user_ok(self):
+
+        pre_count_user = User.objects.count()
+
+        new_user = {
+            "email": "test2@test.com",
+            "password1": "uaar28ass",
+            "password2": "uaar28ass",
+            "username": "user2",
+        }
+
+        response = self.client.post(reverse("article:sign_up"), data=new_user)
+
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(User.objects.count(), pre_count_user + 1)
+
+        user = User.objects.get(username=new_user["username"])
+        self.assertEqual(user.email, new_user["email"])
+        self.assertTrue(user.check_password(new_user["password1"]))
