@@ -21,7 +21,7 @@ docker-compose up -d
 ~~~
 docker-compose exec app bash -c 'python manage.py collectstatic'
 ~~~  
-以下のURLでサイトにアクセスできます。  
+コンテナを立ち上げたあとは、以下のURLでサイトにアクセスできます。  
 http://127.0.0.1:8123/article/index/  
 
 ログインするためのユーザー情報は以下になります。  
